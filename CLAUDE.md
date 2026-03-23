@@ -33,11 +33,20 @@ DS-agent-workspace/
 ├── CLAUDE.md                      ← этот файл
 ├── REPO-TYPE.md
 ├── scout/                         ← Разведчик (R23)
-│   └── YYYY-MM-DD/
-│       ├── meta.yaml
-│       ├── morning-ideas.md
-│       ├── capture-candidates.md
-│       └── new-wp-proposals.md
+│   ├── backlog.yaml               ← бэклог заданий Разведчику
+│   ├── results/
+│   │   └── YYYY/MM/DD/
+│   │       ├── report.md          ← ЕДИНЫЙ отчёт (для ревью)
+│   │       ├── raw-output.md      ← сырой вывод Claude
+│   │       ├── morning-ideas.md   ← находки (raw)
+│   │       ├── capture-candidates.md
+│   │       ├── new-wp-proposals.md
+│   │       └── meta.yaml
+│   └── trajectory/                ← обратная связь
+│       ├── rules.md
+│       ├── accepted.md
+│       ├── rejected.md
+│       └── archive/
 ├── verifier/                      ← Верификатор (VR.R.001)
 │   └── YYYY-MM-DD/
 │       └── verify-report.md
@@ -51,7 +60,7 @@ DS-agent-workspace/
 │   └── YYYY-MM-DD/
 │       └── scheduler-report.md
 └── {new-agent}/                   ← будущие агенты
-    └── YYYY-MM-DD/
+    └── ...
 ```
 
 ---
@@ -60,7 +69,11 @@ DS-agent-workspace/
 
 ### 4.1. Размещение
 
-Каждый агент пишет в `{agent-name}/YYYY-MM-DD/`. Формат выхода определяется agent-card в DS-autonomous-agents.
+Каждый агент пишет в свою папку. Структура внутри — по усмотрению агента:
+- Scout: `scout/results/YYYY/MM/DD/` (иерархия год/месяц/день) + `scout/backlog.yaml` + `scout/trajectory/`
+- Остальные: `{agent-name}/YYYY-MM-DD/` (плоская структура по дате)
+
+Формат выхода определяется agent-card в DS-autonomous-agents.
 
 ### 4.2. Именование папок
 
