@@ -34,3 +34,9 @@
 
 13. **Повторная тема = обогащение accepted, не новая находка** — если тема уже в accepted.md (даже с правкой) — НЕ выводить как TOP-N finding. Вместо этого: отдельная секция «Обогащения accepted» с delta (что нового). Считать в метрике отчёта как enrichments, не findings. Пример: WISC уже accepted #2 → новые данные по Anthropic thesis → enrichment #2, не finding #5.
 
+## Правила из feedback (2026-03-26, ревью #4)
+
+14. **Проверять занятость ID перед предложением** — перед «Capture → X.Y.NNN» проверять, не занят ли этот ID существующим файлом с другой темой. Пример (26 мар): ECO.D.002 предложен для «Pedagogical Market Fit», но уже занят «Lean Canvas ≠ BMC». ECO.M.002 предложен для benchmarks, но занят «Canvas Selection». DP.SOTA.008 предложен для «Context Engineering Paradigm», но занят «Real-Time Knowledge Capture». Правильно: найти следующий свободный номер.
+
+15. **Не дублировать Graduated Governance** — тема governance для агентов уже полно покрыта: AS.M.004 (Graduated Governance метод) + AS.SOTA.003 (WEF/Singapore/ATF governance). Не предлагать AS.M.007 или аналог. Если есть новые данные по governance → enrichment AS.M.004 или AS.SOTA.003.
+
