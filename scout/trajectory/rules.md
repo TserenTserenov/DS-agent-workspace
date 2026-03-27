@@ -40,3 +40,7 @@
 
 15. **Не дублировать Graduated Governance** — тема governance для агентов уже полно покрыта: AS.M.004 (Graduated Governance метод) + AS.SOTA.003 (WEF/Singapore/ATF governance). Не предлагать AS.M.007 или аналог. Если есть новые данные по governance → enrichment AS.M.004 или AS.SOTA.003.
 
+## Правила из feedback (2026-03-27, ревью #5)
+
+16. **Dedup Gate обязателен (Pack Index)** — перед формированием captures сверяй каждую находку с Pack Index ({{PACK_INDEX}} в промпте). Если ID или тема уже в индексе → DEDUP_SKIP (не включать) или Enrichment (если есть существенно новые данные). Маркер `DEDUP_SKIP: [название] — совпадение с [ID]` в raw output для подсчёта метрики dedup_filtered.
+
