@@ -30,8 +30,8 @@ agent: Синхронизатор
 | 1 | Сканирование кода | **✅** | 00:00:41 | SKIP: memory/MEMORY.md (unchanged);SKIP: day-plan already running (lock exists: /Users/tserentserenov/logs/strategist/locks/day-plan.2026-03-27.lock);SKIP: day-plan already completed today; |
 | 2 | Отчёт неудовлетворённых | **✅** | 00:00:56 | done: total=798, helpful=24, unsatisfied=87, triaged=8 |
 | 3 | Проекция Pack | **✅** | (авто) | SKIP: day-plan already completed today |
-| 4 | Стратег утренний | **✅** | 06:00:01 | → strategist morning (catch-up: hour=06) |
-| 8 | Проверка входящих | **✅** | посл.: 21:00:05 (43196 сек назад) | интервальный |
+| 4 | Стратег утренний | **✅** | 06:00:01 | Completed process: inbox-check |
+| 8 | Проверка входящих | **✅** | посл.: 15:03:34 (10588 сек назад) | интервальный |
 | 9 | Синхронизация заметок | **✅ АКТИВЕН** | каждые 2 мин | наблюдатель launchd |
 | 10 | Сбор цифрового следа | **✅** | 00:00:52 | выполнен |
 | 11 | Pull внешних репо | **✅** | 00:00:58 | выполнен |
@@ -50,9 +50,14 @@ agent: Синхронизатор
 - [2026-03-27 00:12:26] [scheduler] WARN: scout failed with exit code 1 (will retry next dispatch)
 - [2026-03-27 02:06:07] [scheduler] WARN: scout failed with exit code 1 (will retry next dispatch)
 - [2026-03-27 03:08:57] [scheduler] WARN: scout failed with exit code 1 (will retry next dispatch)
-- [2026-03-27 06:00:02] [scheduler] WARN: daily-report failed (will retry next dispatch)- [2026-03-27 00:00:40] WARN: Note-Review Step 10 may have failed — new bold notes did not decrease (1 → 1)
+- [2026-03-27 06:00:02] [scheduler] WARN: daily-report failed (will retry next dispatch)
+- [2026-03-27 09:00:02] [scheduler] WARN: daily-report failed (will retry next dispatch)
+- [2026-03-27 12:00:02] [scheduler] WARN: daily-report failed (will retry next dispatch)
+- [2026-03-27 15:03:34] [daily-report] WARN: pull --rebase failed (offline?)
+- [2026-03-27 15:03:34] [scheduler] WARN: daily-report failed (will retry next dispatch)- [2026-03-27 00:00:40] WARN: Note-Review Step 10 may have failed — new bold notes did not decrease (1 → 1)
 
 **Что делать:**
+- **pull --rebase failed:** Нет сети или конфликт. Проверь `git status` в DS-my-strategy. Если конфликт — разреши вручную.
 ## Ссылки на логи
 
 | Лог | Путь |
