@@ -1,441 +1,589 @@
-# Scout Report: 2026-03-26
-# Priority Findings from Reconnaissance
+# Scout Morning Report: 2026-03-26
 
-**Status:** Complete  
-**Sources scanned:** 13 web searches (arxiv, industry reports, technical blogs)  
-**Time range:** Recent 2026 publications + late 2025 foundational research  
-**Total findings:** 10 (ranked by strategic value)
+Результат ночного сканирования. Приоритет: критические + высокие находки для текущих РП.
 
 ---
 
-## TOP-1: Context Engineering Replaces Prompt Engineering (PARADIGM SHIFT)
+## TOP-1: Production AI Agent Failure Modes — Конкретные паттерны для scheduler.sh
 
-**Source:** Gartner 2026, SDG Group, KDnuggets, DEV Community  
-**Relevance:** КРИТИЧЕСКАЯ  
-**Связь:** WP-144 (autonomous agents), DP.SOTA (platform architecture), AS (agent design)
+**Источник:** [Vectara Awesome Agent Failures](https://github.com/vectara/awesome-agent-failures), [EdStellar AI Agent Reliability](https://www.edstellar.com/blog/ai-agent-reliability-challenges), [Maxim Multi-Agent Reliability](https://www.getmaxim.ai/articles/multi-agent-system-reliability-failure-patterns-root-causes-and-production-validation-strategies)
+
+**Релевантность:** КРИТИЧЕСКАЯ  
+**Связь:** WP-132 (scheduler.sh), WP-144 (автономные агенты 1.5x→3x мультипликатор)
 
 ### Суть
-Context engineering officially replaced prompt engineering as the dominant paradigm in 2026. 57% of organizations now have AI agents in production, but 32% cite quality as top barrier — traced to poor context management, not LLM capabilities. Gartner defines it as "programmatic assembly of the Context Package" (data, workflows, environment) enabling AI to understand intent without manual prompts.
+Проанализировал production failure modes для автономных агентов в 2026. Ключевые находки:
 
-**Core shift:** From "how you ask" (prompt) → "what information surrounds request" (schemas, files, retrieval architecture).
+1. **Cascade Failures** — новый FM, не покрытый в AS.FM.* 
+   - Сценарий: агент допустил ошибку в критическом действии → запустил цепную реакцию автоматических реакций → ущерб обнаружен слишком поздно
+   - Severity: критический для multi-agent систем
+   - Mitigation: human-in-the-loop checkpoints для финансовых/операционных/security действий
+   - Пример: агент неправильно обработал email → автоматически отправил каскад ответов → нарушил SLA с клиентом
 
-**Impact metrics:**
-- 50% improvement in response times
-- 40% higher quality outputs
-- LangChain 2025 report: most failures = poor context, not model limits
+2. **Accuracy Drop in Production** — 61% компаний столкнулись с accuracy issues в production (vs 17% в пилотах)
+   - Root cause: context rot + combinatorial tool outputs (агент объединяет выводы инструментов в фактически несогласованные ответы)
+   - Mitigation: independent verification layer + source-of-truth anchoring (уже есть в AS.FM.011, расширить)
+
+3. **Exponential Error Compounding** — если каждый шаг 95% reliable → за 20 шагов = 36% success
+   - Прямое попадание в scheduler.sh (20+ шагов: git pull, WakaTime parse, plan generate, commit)
+   - Mitigation: error budgets per stage + early exit на первой критической ошибке
+
+4. **Intent Misalignment** — агент оптимизирует неправильную цель, тратит ресурсы на нерелевантные задачи
+   - Severity: средний, но частый
+   - Mitigation: explicit goal validation loop (перед началом задачи агент подтверждает цель)
 
 ### Reasoning
-Rule #11: platform-level SOTA. This is NOT agent-specific method — it's architectural paradigm for entire IWE platform. Affects how ALL system components (agents, MCP servers, deterministic systems) handle information. Direct hit on WP-144 (autonomous agents v3.0) and platform modernization roadmap.
+Правило #12 (FM с конкретикой = высокая ценность). Все четыре FM с названиями, severity, mitigation, примерами. 
 
-**Strategic fit:** Q2 2026 goal = 3x efficiency multiplier. Context engineering = foundation for that multiplier.
+**Критическая связь с WP-132:** scheduler.sh сейчас НЕ защищён от:
+- Cascade failures (если агент заспамит Linear при ошибке парсинга WakaTime)
+- Exponential compounding (20+ шагов без error budgets)
+- Intent misalignment (может неправильно интерпретировать fleeting-notes и создать нерелевантные задачи)
+
+**Критическая связь с мультипликатором 1.5x→3x:** production reliability = главный ограничитель масштабирования автономности. Без FM coverage невозможно перейти с T1 (supervised) на T2 (autonomous with oversight).
 
 ### Предложение
-- **Тип:** SOTA-update (paradigm shift)
-- **Куда:** PACK-digital-platform → DP.SOTA.008 "Context Engineering paradigm"
-- **Действие:** Capture comprehensive framework: WISC pattern (Write/Isolate/Select/Compress), Context Package assembly, failure modes (context drift kills 65% of agents before token limits), implementation patterns for IWE
+- **Тип:** 4 новых failure modes
+- **Куда:** PACK-autonomous-agents → AS.FM.012 (Cascade Failures), AS.FM.013 (Production Accuracy Drop), AS.FM.014 (Exponential Error Compounding), AS.FM.015 (Intent Misalignment)
+- **Действие:** Capture + немедленно применить mitigation в scheduler.sh (WP-132)
 
-**Черновик для Экстрактора:**
+### Черновик
 
-```markdown
-# DP.SOTA.008: Context Engineering Paradigm (2026)
+#### AS.FM.012: Cascade Failures in Multi-Agent Systems
 
-**Статус:** Established (Gartner, 2026)  
-**Заменяет:** Prompt engineering as primary AI interface discipline
+**Суть:** Агент допускает ошибку в критическом действии → запускает цепную реакцию автоматических реакций других агентов/систем → ущерб обнаружен слишком поздно.
 
-## Суть различения
-Prompt Engineering ≠ Context Engineering
+**Severity:** Критический (особенно в multi-agent environments)
 
-| Аспект | Prompt Engineering | Context Engineering |
-|--------|-------------------|---------------------|
-| **Фокус** | Как спросить (wording) | Какая информация окружает запрос |
-| **Единица работы** | Текст промпта | Context Package (schemas, data, retrieval) |
-| **Динамика** | Статичный snapshot | Эволюционирующее состояние |
-| **Scope** | Один запрос-ответ | Весь lifecycle агента |
-| **Failure mode** | Плохая формулировка | Context drift, информационный голод |
+**Сценарий:**
+1. Агент A неправильно обрабатывает входящий запрос (email, webhook, API call)
+2. Отправляет некорректный ответ/действие
+3. Агент B реагирует на это действие автоматически
+4. Агент C видит действия A+B и выполняет следующий шаг
+5. К моменту обнаружения ошибки — нарушен SLA, потеряны деньги, испорчена репутация
 
-## Архитектура Context Package
-1. **Write:** Структурировать данные для LLM (не свалка токенов)
-2. **Isolate:** Границы контекста (что релевантно сейчас)
-3. **Select:** Динамический выбор источников
-4. **Compress:** Минимизация без потери смысла
+**Примеры:**
+- Email agent неправильно классифицировал критический запрос клиента → автоматически отправил шаблонный отказ → CRM agent закрыл тикет → billing agent приостановил подписку → клиент ушёл
+- Monitoring agent ложно детектировал инцидент → escalation agent разбудил всю команду в 3am → incident response agent создал postmortem → всё оказалось false positive
 
-## Метрики эффективности (2026 benchmarks)
-- Response time: +50% improvement
-- Output quality: +40%
-- 65% enterprise failures = context drift, не token limits
+**Mitigation:**
+1. **Human-in-the-loop checkpoints** — для действий с финансовым/операционным/security воздействием агент ОБЯЗАН получить явное подтверждение человека
+2. **Blast radius limits** — ограничивать scope автоматических действий (например: не более 5 email в минуту, не более $100 транзакций без подтверждения)
+3. **Undo/rollback capabilities** — каждое автоматическое действие должно иметь механизм отката
+4. **Circuit breakers** — если агент обнаружил аномальную активность (например, слишком много действий за короткое время) → автоматическая пауза + alert
+5. **Audit trail** — полный лог действий для post-incident analysis
 
-## Источники
-- Gartner 2026: Context Engineering definition
-- LangChain State of Agent Engineering 2025
-- [Context Engineering: Why It's Replacing Prompt Engineering in 2026](https://dextralabs.com/blog/context-engineering-vs-prompt-engineering/)
-```
+**Связь с другими FM:**
+- Усиливает AS.FM.011 (Hallucination in Action) — ложная информация в действии × cascade = катастрофа
+- Взаимодействует с AS.FM.009 (Loop of Death) — если cascade loop замыкается, получается бесконечный retry
 
-**Sources:**
-- [Context Engineering is the New Prompt Engineering in 2026](https://dextralabs.com/blog/context-engineering-vs-prompt-engineering/)
-- [The Evolution of Prompt Engineering to Context Design in 2026](https://www.sdggroup.com/en/insights/blog/the-evolution-of-prompt-engineering-to-context-design-in-2026)
-- [Context Engineering: Why It's Replacing Prompt Engineering in 2026](https://dev.to/serenitiesai/context-engineering-why-its-replacing-prompt-engineering-in-2026-1b4g)
+**Detection:**
+- Аномально высокая частота действий от связанных агентов
+- Рост error rate в downstream системах
+- Alerts от monitoring систем о нарушении SLA/budgets
+
+**Источники:**
+- [Vectara: Awesome Agent Failures](https://github.com/vectara/awesome-agent-failures)
+- [EdStellar: AI Agent Reliability Challenges](https://www.edstellar.com/blog/ai-agent-reliability-challenges)
+- [Maxim: Multi-Agent System Reliability](https://www.getmaxim.ai/articles/multi-agent-system-reliability-failure-patterns-root-causes-and-production-validation-strategies)
 
 ---
 
-## TOP-2: Agentic Plan Caching — 50% Cost Reduction, 27% Latency Drop
+## TOP-2: WEF AI Agent Governance Framework (March 2026) — Singapore Model + 4-Level Maturity
 
-**Source:** NeurIPS 2025, arXiv 2506.14852 (updated Jan 2026)  
-**Relevance:** ВЫСОКАЯ  
-**Связь:** WP-144 (autonomous agents), WP-132 (scheduler.sh optimization), AS.M (methods)
+**Источник:** [WEF: AI Agents in Action](https://www.weforum.org/publications/ai-agents-in-action-foundations-for-evaluation-and-governance/), [Singapore IMDA Framework](https://www.imda.gov.sg/resources/press-releases-factsheets-and-speeches/press-releases/2026/new-model-ai-governance-framework-for-agentic-ai), [WEF: From Chatbots to Assistants](https://www.weforum.org/stories/2026/03/ai-agent-autonomy-governance/)
+
+**Релевантность:** ВЫСОКАЯ  
+**Связь:** WP-144 (автономные агенты), AS.M.004 (Graduated Governance), AS.SOTA.003 (governance)
 
 ### Суть
-Agentic Plan Caching (APC) — test-time memory система, которая извлекает, хранит, адаптирует и переиспользует структурированные plan templates из прошлых executions для семантически похожих задач.
+WEF опубликовал в марте 2026 новое исследование "AI Agents in Action: Foundations for Evaluation and Governance" (совместно с Capgemini). Ключевые данные:
 
-**Performance (production benchmarks):**
-- **Cost reduction:** 50.31% в среднем
-- **Latency reduction:** 27.28%
-- **Quality retention:** 96.61% от оптимальной производительности
-- **Overhead:** 1.04% от total serving cost (negligible)
+1. **82% executives планируют adoption агентов в 1-3 года** — но разрыв между экспериментами и зрелым oversight растёт
+2. **Singapore Model AI Governance Framework for Agentic AI** (IMDA, анонс на WEF 2026) — первый в мире фреймворк для безопасного развёртывания автономных агентов
+   - 4 ключевых области:
+     - **Assess & bound risks** — выбор подходящих use cases + лимиты на autonomy/tools/data access
+     - **Human accountability** — определение checkpoints, требующих явного human approval
+     - **Technical controls** — на протяжении всего lifecycle агента
+     - **End-user responsibility** — через transparency + обучение
 
-**Mechanism:** В отличие от semantic caching (кэширует результаты), APC кэширует планы выполнения:
-1. Извлекает plan template из завершённых executions
-2. Использует keyword extraction для матчинга новых запросов
-3. Адаптирует template через lightweight модели
+3. **WEF принцип калибровки автономности:** степень автономности должна быть откалибрована по контексту (риски, зрелость организации, stakes)
+
+4. **Gap между pilot и production:** 79% enterprises внедрили агенты в какой-то форме, но только 11% в production. **88% агентов не доходят до production** (но те, что доходят → ROI 171%)
 
 ### Reasoning
-Rule #12: высокая ценность = конкретика + mitigation. Точные цифры production performance. Прямое попадание в WP-132 (scheduler optimization) и WP-144 (ночные агенты — там именно повторяющиеся task patterns, идеальный use case для APC).
+**Обогащает существующее знание:**
+- AS.M.004 (Graduated Governance) — добавляет конкретику Singapore Framework (4 области)
+- AS.SOTA.003 (WEF/ATF governance) — обновляет до March 2026 + добавляет 82% adoption stat + gap pilot→production
 
-**Strategic fit:** Q2 цель = мультипликатор 3x. APC даёт ~2x на повторяющихся задачах.
+**НЕ дубль** — это обновление SOTA с конкретными новыми данными (Singapore framework детали, 82% vs 11% gap, WEF публикация март 2026).
+
+**Связь с WP-144:** IWE агенты (Scout, Strategist, Extractor) должны следовать Singapore Framework для перехода T1→T2. Сейчас у нас нет explicit checkpoints (human accountability область).
 
 ### Предложение
-- **Тип:** Метод (с production benchmarks)
-- **Куда:** PACK-autonomous-agents → AS.M.005 "Agentic Plan Caching"
-- **Действие:** Capture как метод оптимизации test-time execution для task patterns. Связать с scheduler.sh (WP-132) — там именно repetitive tasks (daily rituals, weekly reviews).
+- **Тип:** SOTA-обновление (enrichment AS.SOTA.003)
+- **Куда:** PACK-autonomous-agents → AS.SOTA.003 (Governance Frameworks) — секция "Singapore IMDA Framework 2026"
+- **Действие:** Enrichment существующей записи
 
-**Черновик:**
+### Черновик (дополнение к AS.SOTA.003)
 
-```markdown
-# AS.M.005: Agentic Plan Caching
+#### Добавить в AS.SOTA.003:
 
-**Источник:** NeurIPS 2025, arXiv:2506.14852  
-**Статус:** Production-ready (2026)
+**Singapore Model AI Governance Framework for Agentic AI (IMDA, March 2026)**
 
-## Проблема
-Агенты при каждом похожем task-е переделывают planning с нуля → высокая latency + cost. Среднее решение GitHub issue: 48.4K tokens trajectory, 1.0M accumulated tokens.
+Первый в мире национальный фреймворк для безопасного развёртывания автономных агентов. Анонсирован на WEF Annual Meeting 2026 в Давосе.
 
-## Решение
-Test-time memory система: кэшируй структурированные планы (не результаты), адаптируй под новый контекст.
+**Четыре ключевых области:**
 
-## Алгоритм
-1. **Extract:** После завершения task → извлечь plan template
-2. **Store:** Индексировать по keyword embeddings
-3. **Match:** Новый request → keyword-based retrieval
-4. **Adapt:** Lightweight LLM подгоняет template под специфику задачи
+1. **Assess and Bound Risks Upfront**
+   - Выбор подходящих agentic use cases (не все задачи подходят для агентов)
+   - Установка явных лимитов на:
+     - Степень автономности (T0-T4)
+     - Доступ к инструментам (tools access control)
+     - Доступ к данным (data access policies)
+   - Risk assessment ПЕРЕД развёртыванием (проактивно, не реактивно)
 
-## Performance (production benchmarks)
-- Cost: -50.31%
-- Latency: -27.28%
-- Quality: 96.61% retention
-- Overhead: 1.04% (negligible)
+2. **Human Accountability**
+   - Определение significant checkpoints — точек, где ОБЯЗАТЕЛЬНО требуется human approval
+   - Humans remain meaningfully accountable for agent actions
+   - Правило: агент может выполнять routine операции автономно, но critical decisions/actions требуют explicit human OK
+   - Примеры checkpoints: финансовые транзакции >$X, изменение access control policies, удаление данных, отправка критически важных коммуникаций
 
-## Use cases в IWE
-- **Scheduler.sh (WP-132):** Daily/weekly rituals — одинаковые паттерны задач
-- **Scout (R23):** Reconnaissance patterns (источники → findings pipeline)
-- **Экстрактор (R2):** Entity extraction workflows
+3. **Technical Controls Throughout Lifecycle**
+   - Контроли на всех стадиях: design → development → deployment → operation → retirement
+   - Observability: полный audit trail всех действий агента
+   - Guardrails: technical safeguards (rate limits, blast radius controls, circuit breakers)
+   - Continuous monitoring для раннего обнаружения drift/degradation
 
-## Failure modes
-- **Overfitting к старым планам:** Если контекст изменился, cached plan может быть субоптимальным. Mitigation: similarity threshold, expiration TTL.
-- **Cold start:** Первые N executions без кэша. Mitigation: seed cache с exemplar plans.
-```
+4. **End-User Responsibility**
+   - Transparency: пользователи должны понимать, что они взаимодействуют с агентом (не обманывать, что это человек)
+   - Education/Training: обучение пользователей работе с агентами, пониманию их capabilities/limitations
+   - Clear escalation paths: пользователь всегда должен иметь возможность перейти к человеку
 
-**Sources:**
-- [Agentic Plan Caching: Test-Time Memory for Fast and Cost-Efficient LLM Agents](https://arxiv.org/abs/2506.14852)
-- [NeurIPS 2025 Poster](https://neurips.cc/virtual/2025/poster/116166)
+**WEF Calibration Principle (March 2026):**
+"The degree of autonomy granted to a system should be calibrated to the context in which it operates, the risks involved, and the institutional maturity of the organization deploying it."
+
+**Gap Pilot→Production (WEF/Capgemini, March 2026):**
+- 82% executives планируют adoption агентов в 1-3 года
+- 79% enterprises внедрили агенты в какой-то форме
+- Но только 11% запустили агенты в production
+- **88% failure rate pilot→production** (основная причина: отсутствие зрелого governance)
+- Те агенты, что дошли до production → average ROI 171% (US enterprises: 192%)
+
+**Применение к IWE:**
+- Scout/Strategist/Extractor сейчас на уровне T1 (supervised) — нет explicit human checkpoints
+- Для перехода T1→T2 (autonomous with oversight) нужно:
+  - Определить significant checkpoints (например: Scout не коммитит находки напрямую в Pack — только proposals)
+  - Установить blast radius limits (Scout не может создавать >10 findings за сессию)
+  - Реализовать audit trail (все действия логируются)
+  - Добавить transparency (каждая находка содержит reasoning — почему Scout считает её релевантной)
+
+**Источники:**
+- [WEF: AI Agents in Action (March 2026)](https://www.weforum.org/publications/ai-agents-in-action-foundations-for-evaluation-and-governance/)
+- [Singapore IMDA: New Model AI Governance Framework for Agentic AI](https://www.imda.gov.sg/resources/press-releases-factsheets-and-speeches/press-releases/2026/new-model-ai-governance-framework-for-agentic-ai)
+- [WEF: From Chatbots to Assistants — Governance is Key](https://www.weforum.org/stories/2026/03/ai-agent-autonomy-governance/)
 
 ---
 
-## TOP-3: GEPA Performance Update — Outperforms GRPO by 6-20%, 35x Fewer Rollouts
+## TOP-3: EdTech Unit Economics 2026 — Churn 9.6%, CAC $1143, NRR >106% = 2.5x Faster Growth
 
-**Source:** arXiv 2507.19457, Comet ML, ICLR 2026  
-**Relevance:** СРЕДНЯЯ (обогащение accepted AS.M.001)  
-**Связь:** WP-144 (autonomous agents), existing AS.M.001 (GEPA already captured)
+**Источник:** [We Are Founders: SaaS Churn & CAC by Industry 2026](https://www.wearefounders.uk/saas-churn-rates-and-customer-acquisition-costs-by-industry-2025-data/), [Qubit Capital: EdTech Series A Funding](https://qubit.capital/blog/edtech-series-a-pitch), [Tracxn: EdTech SaaS 2026 Market Trends](https://tracxn.com/d/sectors/edtech-saas/__SUiO1pLIK1e6SNm_-H12QoILRct8neyBcUR3nJfcXS0)
+
+**Релевантность:** ВЫСОКАЯ  
+**Связь:** WP-142, WP-145 (fundraising deck), WP-183 (CRM как система), ECO.M.002 (benchmarks)
 
 ### Суть
-**НЕ НОВАЯ НАХОДКА** — GEPA уже в accepted.md (2026-03-23, AS.M.001). Новые данные: конкретные benchmarks с ICLR 2026.
+Обновлённые benchmarks для EdTech SaaS в 2026:
 
-**Новые метрики:**
-- **HotpotQA:** GEPA 42% → 62% (6,438 rollouts) vs GRPO 24,000 rollouts → 43%
-- **Across 6 tasks:** GEPA outperforms GRPO by 6% average, up to 20% on specific tasks
-- **Efficiency:** 35x fewer rollouts than GRPO
-- **AIME-2025:** GEPA beats MIPROv2 by +12% accuracy
+**Churn:**
+- EdTech monthly churn: **9.6%** (самый высокий среди всех B2B SaaS вертикалей)
+- B2B SaaS average: 3.5%
+- **Проблема:** высокий churn = главная угроза unit economics
 
-**ACE comparison (новое):** ACE (конкурент GEPA) показал:
-- 82.3% reduction in offline adaptation latency
-- 75.1% fewer rollouts needed
+**CAC:**
+- EdTech CAC: **$1,143** (выше среднего по B2B SaaS: $536)
+- НО: Education SaaS payback period = **3.8 months** (лучший показатель) при low CAC $42 (возможно, это B2C сегмент)
+
+**NRR (Net Revenue Retention):**
+- **NRR >106% → 2.5x faster growth** (критический threshold)
+- Expansion revenue = **40% new ARR** (upsells, cross-sells)
+- Минимум для healthy SaaS: NRR ≥100%
+
+**LTV:CAC:**
+- Sustainable unit economics: **LTV:CAC ≥3:1**
+
+**Gross Margin:**
+- Software/SaaS: легко **>80%**
+
+**Valuation Multiples (2026):**
+- EdTech SaaS average EV/Revenue: **11.5x** (down from 20.9x in 2024)
+- Причина падения: funding decline (EdTech 2026: $35.8M across 21 rounds vs 2024: $270M across 48 rounds = **86.75% drop**)
+
+**Funding Environment:**
+- EdTech VC стабилизировался на **$12.6B globally** в 2026
+- Seed/Series A robust для компаний с high NRR
+- Investors требуют "capital efficiency" — clear path to profitability
+
+**Market Shifts:**
+- **Efficacy Reckoning:** institutional buyers/VCs требуют verifiable proof улучшения learning outcomes (engagement metrics недостаточно)
+- Нужна Logic Models или third-party research: продукт улучшает student mastery или teacher productivity минимум на **10%**
+- **Agentic AI trend:** переход от passive content delivery к autonomous systems (feedback, personalization)
 
 ### Reasoning
-Rule #13: повторная тема = enrichment, не новая находка. AS.M.001 уже существует. Добавляю конкретные цифры ICLR 2026 + comparison с ACE (раньше не было). Это НЕ TOP-N finding — это enrichment для уже accepted knowledge.
+**Прямое попадание в WP-142, WP-145 (fundraising deck):**
+- Deck v0.3 должен включать эти benchmarks (особенно NRR >106% как competitive advantage)
+- IWE positioned как intelligence development platform → можем играть на Efficacy Reckoning (systems thinking = measurable outcome improvement)
+- Churn 9.6% = industry challenge → наш retention strategy должен быть в deck (community + персональные руководства + цифровой двойник = sticky factors)
+
+**Обогащает ECO.M.002 (benchmarks):**
+- Существующая запись (accepted #7, 24 мар) имеет CAC $1,143, expansion revenue 40%, NRR >106%. Новое:
+  - Churn 9.6% (критический новый metric)
+  - Payback period 3.8 months
+  - Efficacy Reckoning (market shift)
+  - Agentic AI trend
+  - Valuation multiples 11.5x (down from 20.9x)
+  - Funding drop 86.75%
 
 ### Предложение
-- **Тип:** Enrichment (accepted AS.M.001)
-- **Действие:** Добавить раздел "Performance Benchmarks (ICLR 2026)" в AS.M.001 с HotpotQA, AIME-2025 метриками + ACE comparison
+- **Тип:** Enrichment (расширение ECO.M.002 + применение к WP-142/145)
+- **Куда:** ECO.M.002 (добавить churn, payback, market shifts) + deck v0.3 (использовать benchmarks)
+- **Действие:** Enrichment accepted #7
 
-**Sources:**
-- [GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning](https://arxiv.org/abs/2507.19457)
-- [GEPA AI Optimization](https://www.comet.com/site/blog/gepa-ai-optimization/)
+### Черновик (дополнение к ECO.M.002)
+
+**Добавить в ECO.M.002:**
+
+**Churn Rate:**
+- EdTech monthly churn: **9.6%** (highest among all B2B SaaS verticals)
+- B2B SaaS average: 3.5%
+- **Implication:** retention strategy = critical для EdTech unit economics. Без strong retention высокий CAC не окупится.
+
+**CAC Payback:**
+- EdTech payback period: **3.8 months** (best in class для некоторых сегментов)
+- Benchmark: sustainable SaaS payback <12 months
+
+**Market Shifts 2026:**
+
+1. **The Efficacy Reckoning**
+   - Institutional buyers и VCs больше не принимают engagement metrics как proof of value
+   - Требуется verifiable evidence: продукт улучшает learning outcomes (student mastery OR teacher productivity) минимум на **10%**
+   - Методы доказательства: Logic Models, third-party research, controlled studies
+   - **Для IWE:** systems thinking outcomes measurable через FPF assessment framework → конкурентное преимущество
+
+2. **Agentic AI Trend**
+   - Переход от passive content delivery (courses, videos) к autonomous agentic systems
+   - Agents manage student feedback, personalization, adaptive learning paths
+   - **Для IWE:** ИИ-агенты (Scout, Strategist, Navigator, Extractor) = core value proposition, не bolt-on feature
+
+**Funding Environment 2026:**
+- EdTech funding drop: **86.75%** (2024: $270M/48 rounds → 2026: $35.8M/21 rounds)
+- Valuation multiples compressed: **11.5x** (down from 20.9x in 2024)
+- BUT: seed/Series A robust для компаний с:
+  - High NRR (>106%)
+  - Clear path to profitability
+  - Measurable learning outcomes (Efficacy Reckoning)
+
+**Retention Strategy Implications:**
+- EdTech churn 9.6% означает средний customer lifetime ≈10 months (если linear)
+- Для LTV:CAC 3:1 при CAC $1,143 → нужен LTV ≥$3,429
+- При ARPU $100/мес → нужно удержать клиента минимум 34 месяца (≈3 года)
+- **IWE sticky factors:**
+  - Community (peer pressure, accountability)
+  - Digital twin (накопленные данные, персональный контекст)
+  - Персональные руководства (customization investment)
+  - Pack-знания (source-of-truth, увеличивающийся со временем)
+
+**Источники:**
+- [We Are Founders: SaaS Churn & CAC 2026](https://www.wearefounders.uk/saas-churn-rates-and-customer-acquisition-costs-by-industry-2025-data/)
+- [Qubit Capital: EdTech Series A Funding](https://qubit.capital/blog/edtech-series-a-pitch)
+- [Tracxn: EdTech SaaS 2026 Market Trends](https://tracxn.com/d/sectors/edtech-saas/__SUiO1pLIK1e6SNm_-H12QoILRct8neyBcUR3nJfcXS0)
+- [Qubit Capital: EdTech Storytelling](https://qubit.capital/blog/how-to-build-investor-trust-edtech)
 
 ---
 
-## TOP-4: LangGraph Production Deployment — 40% Enterprise Adoption, 10-15% Pilot Success Rate
+## TOP-4: MCP Enterprise Adoption 2026 — From Pilot to Production, $1.8B Market
 
-**Source:** Iterathon 2026, MarkTechPost, Medium  
-**Relevance:** СРЕДНЯЯ  
-**Связь:** WP-144 (autonomous agents), DP (platform architecture)
+**Источник:** [CData: 2026 Year for Enterprise MCP Adoption](https://www.cdata.com/blog/2026-year-enterprise-ready-mcp-adoption), [Use Apify: MCP Standard & Ecosystem 2026](https://use-apify.com/blog/mcp-standard-ecosystem-2026), [Pento: A Year of MCP 2025 Review](https://www.pento.ai/blog/a-year-of-mcp-2025-review)
+
+**Релевантность:** СРЕДНЯЯ  
+**Связь:** WP-187 (Knowledge Gateway MVP), DP (platform architecture), DS-MCP
 
 ### Суть
-**Adoption stats (2026):**
-- 40% of enterprise apps will feature task-specific agents (up from <5% in 2025)
-- BUT: only 10-15% of pilots reach production
-- 86% of copilot spending ($7.2B) → agent-based systems
-- 75% of multi-agent systems become unmanageable beyond 5 agents
+MCP (Model Context Protocol) переход от пилотов к production в 2026:
 
-**Production-grade patterns:**
-- **State management:** SQLite-based persistence, checkpoint recovery
-- **Monitoring:** Human-in-the-loop checks, observability (LangSmith)
-- **Architecture:** Structured message bus (LangGraph + Pydantic), ACP logging
+**Market Growth:**
+- MCP market: **$1.8B in 2025** (прогноз на 2026 выше)
+- Драйверы: highly regulated fields (healthcare, finance, manufacturing)
 
-**Failure modes:**
-- Complexity explosion at 5+ agents (coordination cost)
-- Lack of observability → debugging nightmare
-- State loss on failures
+**Vendor Support:**
+- Major vendors standardizing around MCP: OpenAI, Anthropic, Hugging Face, LangChain
+- OpenAI officially adopted MCP в **March 2025** (интегрирован в ChatGPT desktop app)
+- MCP стал **de facto protocol** для connecting AI systems к real-world data/tools
+
+**2026 = Transition Year:**
+- От experimentation к enterprise-wide adoption
+- От pilots к production deployments
+- Expected: full standardization + global compliance alignment
+
+**Integration Patterns:**
+
+1. **Architecture Approach:**
+   - MCP = JSON-RPC-style bridge
+   - AI host (IDE, desktop assistant) discovers/calls tools in separate MCP server process
+   - НЕ замена databases/scrapers — стандартизирует boundary где models meet APIs/files/automation
+
+2. **Code Execution Pattern (новый тренд):**
+   - Agents write code to discover/call tools on demand
+   - Вместо loading all tool definitions upfront (сотни тысяч токенов)
+   - Более эффективное использование context
+
+3. **Best Practices:**
+   - **Phased implementation:** rollout gradually, review after each stage
+   - **Governance first:** security/compliance/identity controls early
+   - **Focused tool design:** small MCP servers, one thing well
+   - **Security controls:** smallest tool surface, environment-based secrets (never rely on model to "keep" credentials private)
+
+**Future Enhancements (roadmap):**
+- Long-running operations (survive disconnections/reconnections)
+- Essential for robust enterprise workflows
+- Enables agents to handle time-consuming tasks without persistent connections
 
 ### Reasoning
-Конкретика production challenges + архитектурные паттерны. Релевантно для WP-144 (autonomous agents v3.0) — там планируется multi-agent coordination. Эти данные = input для design decisions.
+**Связь с WP-187 (Knowledge Gateway MVP):**
+- IWE уже использует MCP (Gmail, Calendar, DDT, Knowledge, Guides, Composer)
+- Находка подтверждает правильность архитектурного выбора (MCP = industry standard)
+- Knowledge Gateway должен следовать best practices:
+  - Focused tool design (small servers)
+  - Security controls (env-based secrets)
+  - Phased implementation
+
+**НЕ критическая находка, т.к.:**
+- MCP уже в использовании
+- Donation к AAIF (упоминалось в rejected #5, 26 мар) = governance shift, не влияет на архитектуру
+- Нет новых failure modes или методов, специфичных для IWE
+
+**Полезно для:**
+- Подтверждение architectural alignment (MCP = правильный выбор)
+- Best practices для WP-187 implementation
+- Context для WP-142/145 deck (technology stack = industry-standard)
 
 ### Предложение
-- **Тип:** SOTA-update + production best practices
-- **Куда:** AS.SOTA.003 "Multi-Agent Orchestration Production Patterns"
-- **Действие:** Capture LangGraph best practices, failure modes (complexity at 5+ agents), state management patterns
+- **Тип:** SOTA-обновление (DP.SOTA.*)
+- **Куда:** PACK-digital-platform → DP.SOTA.009 (новый) "MCP Enterprise Adoption 2026"
+- **Действие:** Capture как platform SOTA (не agent-specific)
 
-**Sources:**
-- [Agent Orchestration 2026: LangGraph, CrewAI & AutoGen Guide](https://iterathon.tech/blog/ai-agent-orchestration-frameworks-2026)
-- [Production-Grade Multi-Agent Communication System Using LangGraph](https://www.marktechpost.com/2026/03/01/how-to-design-a-production-grade-multi-agent-communication-system-using-langgraph-structured-message-bus-acp-logging-and-persistent-shared-state-architecture/)
+### Черновик
+
+#### DP.SOTA.009: MCP Enterprise Adoption 2026 — Industry Standard for AI-Data Integration
+
+**Статус:** Industry standard (де-факто)
+
+**Суть:**
+Model Context Protocol (MCP) завершил переход от experimentation к enterprise-wide production adoption в 2026. Major vendors (OpenAI, Anthropic, Hugging Face, LangChain) стандартизировались вокруг MCP как core integration interface для AI systems.
+
+**Market:**
+- Market size: **$1.8B in 2025** (рост в 2026)
+- Драйверы: highly regulated industries (healthcare, finance, manufacturing)
+- OpenAI adopted MCP **March 2025** (ChatGPT desktop app)
+
+**Architecture:**
+- MCP = JSON-RPC-style bridge между AI host и tool servers
+- НЕ замена для databases/scrapers — стандартизирует boundary где models meet APIs/files/automation
+- Separate server processes → modularity, security isolation
+
+**Integration Patterns:**
+
+1. **Code Execution Pattern (2026 trend):**
+   - Agents write code to discover/call tools on demand
+   - Вместо upfront loading всех tool definitions (экономия context tokens)
+   - Enables dynamic tool discovery
+
+2. **Phased Implementation:**
+   - Rollout gradually по stages
+   - Review performance after each stage
+   - Align stakeholders early (business teams)
+
+3. **Governance First:**
+   - Security/compliance/identity controls BEFORE rollout
+   - Environment-based secrets (never model-accessible credentials)
+   - Smallest tool surface principle
+
+4. **Focused Tool Design:**
+   - Small MCP servers → one thing well
+   - Avoid monolithic servers with hundreds of tools
+   - Easier testing, maintenance, security
+
+**Future (Roadmap):**
+- Long-running operations (survive disconnections/reconnections)
+- Critical for enterprise workflows
+- Enables time-consuming tasks without persistent connections
+
+**IWE Context:**
+- IWE MCP servers: Gmail, Calendar, DDT, Knowledge, Guides, Composer
+- Architectural alignment: IWE следует focused tool design (отдельный сервер на домен)
+- Knowledge Gateway (WP-187) должен следовать best practices:
+  - Phased implementation (MVP → expand)
+  - Security controls (env secrets, minimal tool surface)
+  - Long-running ops support (для batch indexing)
+
+**Различие от prompt engineering:**
+- Prompt engineering = craft input text
+- MCP = standardize integration boundary (tools, data sources, APIs)
+- Context engineering (DP.SOTA.006) > prompt engineering > MCP integration
+
+**Источники:**
+- [CData: 2026 Year for Enterprise MCP Adoption](https://www.cdata.com/blog/2026-year-enterprise-ready-mcp-adoption)
+- [Use Apify: MCP Standard & Ecosystem 2026](https://use-apify.com/blog/mcp-standard-ecosystem-2026)
+- [Pento: A Year of MCP 2025 Review](https://www.pento.ai/blog/a-year-of-mcp-2025-review)
+- [Wikipedia: Model Context Protocol](https://en.wikipedia.org/wiki/Model_Context_Protocol)
 
 ---
 
-## TOP-5: AI Agent Memory Systems 2026 — 4 Memory Types, Production Challenges
+## TOP-5: Systems Thinking as Workforce Capability 2026 — ROI Depends on Agility, Not Output
 
-**Source:** Oracle Developers Blog, 47billion, MachineLearningMastery  
-**Relevance:** СРЕДНЯЯ  
-**Связь:** WP-144 (autonomous agents memory), AS (agent design)
+**Источник:** [DataCamp: AI ROI 2026 — Workforce Capability](https://www.datacamp.com/blog/ai-roi-in-2026-why-workforce-capability-determines-the-return-on-ai), [EducationNest: ROI of Reskilling 2026](https://educationnest.com/the-roi-of-reskilling-navigating-the-2026-corporate-learning-revolution/), [Silicon UK: Skills That Matter 2026](https://www.silicon.co.uk/e-management/skills/the-skills-that-matter-in-2026-head-to-head-628346)
+
+**Релевантность:** СРЕДНЯЯ  
+**Связь:** WP-142/145 (positioning для инвесторов), ECO (ecosystem value proposition), MIM (методика обучения)
 
 ### Суть
-Field converged on **4 memory types** mapping to human cognition:
-1. **Working Memory:** Current context window (most agents have ONLY this)
-2. **Episodic Memory:** What happened (timestamped events, conversation turns, tool calls)
-3. **Semantic Memory:** What I know (facts, policies, domain knowledge)
-4. **Procedural Memory:** How to do things (workflows, playbooks)
+Ключевые находки о системном мышлении как workforce capability в 2026:
 
-**Production challenges (2026):**
-- **Storage vs Inference trade-off:** Full history = cost explosion. Solution: hierarchical memory + importance scoring + dynamic forgetting
-- **Latency:** Constant retrieve/store decisions slow response
-- **Forgetting:** Hardest challenge — when/what to delete?
+**1. Systems Thinking = Most Valuable Long-Term Capability**
+- Почему ценно:
+  - Helps anticipate change
+  - Integrate perspectives
+  - Design solutions that work WITH the system, not against it
+- Transferable across roles/industries
+- Amplifies other skills
+- Remains relevant under pressure
+- Enables internal mobility (vs replacement)
 
-**Database architecture patterns:**
-- Vector DB: semantic similarity (weak multi-hop)
-- Graph DB: fast traversal (ideal for episodic + procedural)
-- SQL/Postgres: ACID compliance, auditable
+**2. ROI Measurement Shift — From Output to Agility**
+- Старый вопрос: "Did this skill improve output in this job?"
+- Новый вопрос: **"Did it make the organization more agile?"**
+- Metrics:
+  - Internal mobility
+  - Project speed
+  - Innovation contributions
+  - Retention
 
-**Use case (customer service):**
-- 26.5% of production agents (LangChain 2025)
-- Needs all 4 types: episodic (past tickets), semantic (preferences), working (live convo), procedural (resolution workflows)
+**3. AI ROI Depends on Workforce Capability**
+- Organizations с mature data/AI literacy upskilling program: **nearly 2x higher AI ROI**
+- Вывод: AI investment БЕЗ workforce capability building = низкий ROI
+- **Для IWE:** AI agents (Scout, Strategist, etc.) + systems thinking methodology = усиление AI через human capability
+
+**4. Skills Gap = Daily Operational Reality in 2026**
+- Не будущая проблема — существует сейчас
+- "Hiring for skills is temporary — training for agility is permanent"
+- Gig-Hybrid workforce + autonomous systems требуют agile mindset
+
+**5. L&D Transition: From Benefit to Business Imperative**
+- L&D 2026 = proactive partner в workforce strategy
+- Focus: skills investment, culture transformation, long-term capabilities
+- Only 8% L&D professionals confident в measuring business impact → opportunity для differentiation
+
+**6. Corporate Training ROI: Performance Stories, Not Training Stories**
+- Strongest ROI в 2026 = performance outcomes, не training activity
+- L&D должен demonstrate impact на:
+  - Productivity
+  - Retention
+  - Performance
+- Using data aligned с business outcomes
 
 ### Reasoning
-Comprehensive taxonomy памяти агентов + production challenges. Релевантно для WP-144 (autonomous agents v3.0 design). Сейчас в IWE memory = хаотичная (files, not structured). Эта структура = blueprint для архитектуры.
+**Связь с WP-142/145 (fundraising positioning):**
+- IWE positioned как intelligence development platform
+- Systems thinking = core capability → aligns с workforce agility trend
+- Investor narrative: "We don't sell courses, we build organizational agility through systems thinking"
+- ROI story: enterprises с upskilling programs = 2x AI ROI → IWE enables this
+
+**Связь с ECO (ecosystem value prop):**
+- Community + методология + платформа = workforce capability infrastructure
+- Measurement: internal mobility, innovation contributions (IWE community examples)
+
+**Связь с MIM (методика):**
+- Shift от training activity к performance outcomes
+- MIM должен focus на measurable agility metrics (не просто completion rates)
+
+**НЕ критическая находка, т.к.:**
+- Подтверждает existing positioning, не меняет стратегию
+- Useful для narrative refinement, не для architectural decisions
 
 ### Предложение
-- **Тип:** Метод (memory architecture design)
-- **Куда:** AS.M.006 "Four-Type Memory Architecture for Autonomous Agents"
-- **Действие:** Capture taxonomy + implementation patterns + failure modes (forgetting, latency)
+- **Тип:** Positioning insight (для deck/narrative)
+- **Куда:** ECO.D.* (новое различение) "Training for Skills ≠ Training for Agility"
+- **Действие:** Capture + использовать в WP-142/145 deck v0.3
 
-**Sources:**
-- [Agent Memory: Why Your AI Has Amnesia and How to Fix It](https://blogs.oracle.com/developers/agent-memory-why-your-ai-has-amnesia-and-how-to-fix-it)
-- [AI Agent Memory: Types, Implementation, Best Practices 2026](https://47billion.com/blog/ai-agent-memory-types-implementation-best-practices/)
-- [Beyond Short-term Memory: The 3 Types of Long-term Memory AI Agents Need](https://machinelearningmastery.com/beyond-short-term-memory-the-3-types-of-long-term-memory-ai-agents-need/)
+### Черновик
 
----
+#### ECO.D.003: Training for Skills ≠ Training for Agility
 
-## TOP-6: Graduated Governance & Trust Stack for AI Agents
+**Суть различения:**
+Традиционный corporate training фокусируется на конкретные навыки для текущей роли. Agility training фокусируется на transferable capabilities для адаптации к изменениям.
 
-**Source:** WEF Feb 2026, Cloud Security Alliance (ATF), Microsoft Community Hub  
-**Relevance:** СРЕДНЯЯ  
-**Связь:** WP-144 (autonomous agents governance), AS (bounded agency design)
+**Сравнение:**
 
-### Суть
-Leaders implementing **layered trust stack** for agent autonomy:
-1. **Legible Reasoning:** Agent explains outputs at appropriate detail
-2. **Bounded Agency:** Clear limits on what agent can do/decide (no silent escalation)
-3. **Goal Transparency:** User understands agent's objectives
-4. **Contestability:** Override capability
-5. **Governance by Design:** Embedded logging, auditability
+| Аспект | Training for Skills | Training for Agility |
+|--------|---------------------|----------------------|
+| **Фокус** | Конкретные навыки для current job | Transferable capabilities (systems thinking, learning how to learn) |
+| **Срок жизни** | Краткосрочный (skills obsolete в 2-5 лет) | Долгосрочный (capabilities relevant across changes) |
+| **ROI метрика** | Output improvement in specific role | Organizational agility (internal mobility, project speed, innovation) |
+| **Вопрос** | "Did this improve output in this job?" | "Did this make the organization more agile?" |
+| **Hiring стратегия** | "Hire for skills" (temporary fix) | "Train for agility" (permanent capability) |
+| **Измерение** | Completion rates, skill assessments | Internal mobility, retention, innovation contributions, adaptation speed |
+| **Риск** | Skills gap при изменении технологий/рынка | Capability gap при fundamental shifts |
+| **Примеры** | "Python for Data Science", "Excel Advanced" | Systems thinking, problem framing, adaptive expertise |
 
-**Agentic Trust Framework (ATF, CSA):**
-- Open governance spec for autonomous agents
-- Graduated maturity levels:
-  - **Foundation:** Observe, report, recommend (human approval)
-  - **Advanced:** Post-action notification under governance
-- Zero-trust principles for agents
+**Контекст 2026:**
+- Skills gap = не будущая угроза, а daily operational reality
+- Gig-Hybrid workforce + autonomous systems → agility критична
+- AI ROI depends on workforce capability: organizations с mature upskilling programs = **2x higher AI ROI**
 
-**Trust boundary:** Rigorously defined, measured, managed (Microsoft framework)
+**IWE Positioning:**
+- Мы НЕ продаём courses (training for skills)
+- Мы строим organizational agility через systems thinking methodology
+- ROI measurement:
+  - Internal mobility (люди переходят на более сложные роли внутри организации)
+  - Innovation contributions (применяют системное мышление к новым проблемам)
+  - Retention (agile workforce = engaged workforce)
+  - AI ROI amplification (системное мышление усиливает AI capabilities)
 
-### Reasoning
-Governance framework для autonomous agents. Релевантно для WP-144 — там designing agent roles с разной степенью автономности (R23 Scout vs R1 Strategist). ATF = structured approach для calibration автономии.
+**Failure Mode:**
+- Продавать IWE как "курсы по системному мышлению" = позиционирование как skills training
+- Правильно: "инфраструктура для развития организационной гибкости"
 
-**Strategic fit:** Rule #7 не нарушен — это не новость ("X выпустил Y"), а методология governance с конкретными уровнями зрелости.
-
-### Предложение
-- **Тип:** Метод (governance framework)
-- **Куда:** AS.M.007 "Graduated Governance for Agent Autonomy"
-- **Действие:** Capture Trust Stack + ATF maturity levels, связать с AS.D.007 (autonomy distinctions)
-
-**Sources:**
-- [How to design for trust in the age of AI agents](https://www.weforum.org/stories/2026/02/how-to-design-for-trust-in-the-age-of-ai-agents/)
-- [Agentic Trust Framework: Zero Trust for AI Agents](https://cloudsecurityalliance.org/blog/2026/02/02/the-agentic-trust-framework-zero-trust-governance-for-ai-agents)
-
----
-
-## TOP-7: EdTech B2B SaaS Benchmarks 2026 — Churn 9.6%, CAC $1,143, NRR >106%
-
-**Source:** Data-Mania, Proven SaaS, WeAreFounders  
-**Relevance:** ВЫСОКАЯ  
-**Связь:** WP-145 (fundraising deck), ECO (ecosystem business model)
-
-### Суть
-**EdTech-specific metrics (2026):**
-- **Churn:** 9.6% monthly (highest among SaaS verticals, 38x difference vs enterprise 0.25%)
-- **CAC:** $1,143 average (but education segment: $42 with 3.8mo payback — fast profitability)
-- **Expansion revenue:** 40% of new ARR (NRR >106% = 2.5x faster growth)
-- **LTV:CAC:** >3:1 (healthy)
-- **CAC payback:** Median 6.8mo (EdTech segment: 3.8mo best-in-class)
-
-**Conversion rates:**
-- Visitor-to-trial: 10.3% (EdTech)
-- MQL-to-SQL: 40% (B2B SaaS average)
-
-**Market reality:**
-- Seed-to-Series A graduation: 41% (Q3 2020) → 12% (Q1 2023)
-- Focus shift: potential → proof (traction, leadership, capital efficiency)
-
-### Reasoning
-Конкретные benchmarks для WP-145 (fundraising deck v0.3). Использовано частично (churn, CAC), но expansion revenue 40% и NRR >106% = новая информация. Можно обогатить слайд 10 (unit economics).
-
-**Strategic fit:** Q2 2026 goal = fundraising prep. Эти метрики = ammunition для deck.
-
-### Предложение
-- **Тип:** Метрика (industry benchmarks)
-- **Куда:** ECO.M.002 (business model benchmarks), use in WP-145
-- **Действие:** Update deck v0.3 slide 10 с expansion revenue + NRR benchmarks
-
-**Sources:**
-- [SaaS Churn Rates and Customer Acquisition Costs by Industry: 2026 Benchmarks](https://www.wearefounders.uk/saas-churn-rates-and-customer-acquisition-costs-by-industry-2025-data/)
-- [CAC Benchmarks for B2B Tech Startups 2026](https://www.data-mania.com/blog/cac-benchmarks-for-b2b-tech-startups-2025/)
+**Источники:**
+- [DataCamp: AI ROI 2026](https://www.datacamp.com/blog/ai-roi-in-2026-why-workforce-capability-determines-the-return-on-ai)
+- [EducationNest: ROI of Reskilling 2026](https://educationnest.com/the-roi-of-reskilling-navigating-the-2026-corporate-learning-revolution/)
+- [Silicon UK: Skills That Matter 2026](https://www.silicon.co.uk/e-management/skills/the-skills-that-matter-in-2026-head-to-head-628346)
+- [Myngle: New ROI of Employee Development 2026](https://blog.myngle.com/training-roi-2026-business-impact)
 
 ---
 
-## TOP-8: World Models for Embodied AI — ICLR 2026 Workshop, Genie 3, Cosmos 2M Downloads
+## Метрики сессии
 
-**Source:** ICLR 2026 Workshop, arXiv surveys (2510.16732), Introl Blog  
-**Relevance:** НИЗКАЯ (outside IWE scope, но технологический тренд)  
-**Связь:** Косвенно к AS (future agent architectures)
+**Источников просканировано:** 10 web searches (50+ URLs analyzed)  
+**Находок сформировано:** 5 (TOP-5)  
+**Приоритет:**
+- Критические: 1 (FM для scheduler.sh)
+- Высокие: 3 (governance, EdTech metrics, MCP adoption)
+- Средние: 1 (systems thinking positioning)
 
-### Суть
-World models = internal simulators для embodied agents, enabling:
-- Forward/counterfactual rollouts
-- Physics simulation
-- Agent planning without real-world interaction
+**РП покрытие:**
+- WP-132 (scheduler.sh) — FM mitigation strategies
+- WP-142, WP-145 (fundraising) — EdTech benchmarks, positioning
+- WP-144 (автономные агенты) — governance framework, FM
+- WP-187 (Knowledge Gateway) — MCP best practices
 
-**2026 developments:**
-- Google DeepMind: Genie 3 (first real-time interactive world model, 24 fps, persistent 3D environments)
-- NVIDIA Cosmos: 2M downloads
-- Fei-Fei Li's World Labs: Marble release
+**Pack покрытие:**
+- AS: 4 новых FM, governance enrichment
+- ECO: benchmarks enrichment, новое различение
+- DP: MCP SOTA
 
-**Research focus (ICLR 2026 workshop):**
-- Scalable engines for dynamic interaction modeling
-- Intersection: generative modeling, RL, computer vision, robotics
-
-### Reasoning
-Технологический тренд, но IWE = не embodied AI (нет роботов, физических агентов). World models могут быть релевантны для future agent architectures (симуляция последствий действий), но сейчас = outside scope.
-
-**Решение:** Отметить как тренд, но НЕ capture в Pack (not actionable for IWE roadmap 2026).
-
----
-
-## TOP-9: MCP (Model Context Protocol) — Industry Standard, 40% Enterprise Adoption Goal
-
-**Source:** Wikipedia, Anthropic Skilljar, Pento Blog, OneReach  
-**Relevance:** СРЕДНЯЯ  
-**Связь:** DP (MCP servers already in use), platform architecture
-
-### Суть
-MCP donated to Agentic AI Foundation (AAIF, Linux Foundation) в Dec 2025. Co-founded by Anthropic, Block, OpenAI.
-
-**2026 status:**
-- De facto protocol для connecting AI systems to real-world data/tools
-- Gartner prediction: 40% of enterprise apps with AI agents by end of 2026 (up from <5%)
-- Adopted by OpenAI, Google DeepMind, Microsoft, thousands of developers
-
-**Core primitives:**
-- Tools (model-controlled)
-- Resources (app-controlled)
-- Prompts (user-controlled)
-
-**Architecture:** JSON-RPC 2.0, inspired by Language Server Protocol (LSP)
-
-### Reasoning
-MCP уже используется в IWE (MCP servers для Gmail, Calendar, Digital Twin). Эта информация = подтверждение правильности выбора (industry standard). Новизна = donation к AAIF (governance shift), но не влияет на текущую архитектуру.
-
-**Решение:** Обогатить DP.SOTA (MCP adoption data), но НЕ новая сущность.
-
----
-
-## TOP-10: Multi-Agent Coordination Cost — 45% Process Hand-off Reduction, 3x Decision Speed
-
-**Source:** Kanerika, Codebridge, IBM Research  
-**Relevance:** СРЕДНЯЯ  
-**Связь:** WP-144 (autonomous agents), DP (platform coordination)
-
-### Суть
-**Coordination challenge:** As agents increase, interaction count increases rapidly → coordination cost explodes, learning/decision-making slows.
-
-**Mitigation strategies:**
-- **Intelligent routing:** Cost optimization (different models for different complexity)
-- **Team size limits:** 3-7 agents per workflow, hierarchical beyond that
-- **Centralized vs decentralized:** Supervisor pattern (clear control, potential bottleneck) vs autonomous (flexibility, complexity)
-
-**Performance gains (IBM research):**
-- Process hand-offs: -45%
-- Decision speed: 3x improvement
-
-**Economic impact:** McKinsey estimates generative AI could add $2.6-4.4T annually to global GDP.
-
-### Reasoning
-Coordination cost = known problem (already captured in DP.SOTA.006). Новые данные: IBM research metrics (45% reduction, 3x speed). Обогащение, не новая находка.
-
----
-
-## SUMMARY STATISTICS
-
-**Total findings:** 10  
-**Critical priority:** 1 (Context Engineering paradigm shift)  
-**High priority:** 2 (Agentic Plan Caching, EdTech benchmarks)  
-**Medium priority:** 6  
-**Low priority:** 1 (World Models — outside scope)
-
-**Enrichments (not new findings):** 2 (GEPA benchmarks, MCP adoption data)
-
-**Strategic alignment:**
-- WP-144 (autonomous agents): 7 findings
-- WP-145 (fundraising): 1 finding
-- DP (platform architecture): 4 findings
-- ECO (business model): 1 finding
-
-**Recommended immediate actions:**
-1. Capture Context Engineering paradigm (DP.SOTA.008) — блокирующее для platform modernization
-2. Evaluate Agentic Plan Caching для scheduler.sh (WP-132) — potential 2x efficiency gain на repetitive tasks
-3. Update fundraising deck v0.3 с EdTech NRR/expansion revenue benchmarks (slide 10)
+**Конверсия в actionable:**
+- Немедленно применимо: TOP-1 (FM mitigation в scheduler.sh)
+- Для текущих РП: TOP-2, TOP-3 (governance, metrics в deck)
+- Для архитектуры: TOP-4 (MCP best practices в Knowledge Gateway)
+- Для positioning: TOP-5 (narrative refinement)
 

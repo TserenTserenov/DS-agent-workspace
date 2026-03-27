@@ -22,7 +22,7 @@
 - Находки (morning-ideas, capture-candidates, new-wp-proposals)
 - Результаты ночных циклов (scheduler-reports)
 
-**Различение:** Код агентов → DS-autonomous-agents (instrument). Данные агентов → здесь (governance). Утверждённые решения → DS-my-strategy (governance).
+**Различение:** Код агентов → DS-autonomous-agents (instrument). Данные агентов → здесь (governance). Утверждённые решения → governance-хаб (например DS-my-strategy, приватный).
 
 ---
 
@@ -96,7 +96,7 @@ DS-agent-workspace/
 Агент создаёт артефакт
   → DS-agent-workspace/{agent}/YYYY-MM-DD/
   → Человек ревьюит
-  → Утверждённая версия → DS-my-strategy (или Pack)
+  → Утверждённая версия → governance-хаб (или Pack)
   → Черновик остаётся в workspace (аудит, обучение)
 ```
 
@@ -107,7 +107,7 @@ DS-agent-workspace/
 | Репозиторий | Роль |
 |-------------|------|
 | DS-autonomous-agents | Код агентов (instrument) — производители |
-| DS-my-strategy | Утверждённые решения (governance) — потребитель |
+| DS-my-strategy (приватный) | Утверждённые решения (governance) — потребитель |
 | PACK-* | Формализованные знания — конечный потребитель через Экстрактора |
 
 ---

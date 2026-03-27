@@ -1,1136 +1,453 @@
-# Capture Candidates for Extractor (R2)
-# Scout → Extractor pipeline: черновики для формализации в Pack-knowledge
+# Capture Candidates: 2026-03-26
 
-**Date:** 2026-03-26  
-**Scout run:** morning reconnaissance  
-**Total candidates:** 7
+Черновики для Экстрактора (R2). Готовы к формализации в Pack-знания.
 
 ---
 
-## CANDIDATE #1: Context Engineering Paradigm (DP.SOTA.008)
-
-**Pack:** PACK-digital-platform  
-**Type:** SOTA-update (paradigm shift)  
-**Priority:** КРИТИЧЕСКАЯ
-
-### Предварительная формулировка
-
-```markdown
----
-id: DP.SOTA.008
-type: sota
-title: Context Engineering Paradigm
-status: established
-source: Gartner 2026, LangChain State of Agent Engineering 2025
-date: 2026
-replaces: Prompt engineering as primary AI interface discipline
----
-
-# Context Engineering Paradigm
-
-## Суть различения
-
-**Prompt Engineering ≠ Context Engineering**
-
-Prompt engineering фокусируется на "как спросить" (wording of instruction).  
-Context engineering фокусируется на "какая информация окружает запрос" (data architecture).
-
-| Аспект | Prompt Engineering | Context Engineering |
-|--------|-------------------|---------------------|
-| **Единица работы** | Текст промпта (статичный) | Context Package (динамический) |
-| **Scope** | Один запрос-ответ | Весь lifecycle агента/системы |
-| **Компоненты** | Instruction + examples | Schemas, data sources, retrieval architecture, workflows |
-| **Динамика** | Snapshot at inference time | Evolving state across interactions |
-| **Failure mode** | Плохая формулировка → плохой ответ | Context drift → degradation over time |
-| **Масштабируемость** | Не масштабируется (каждый промпт = ручная работа) | Масштабируется (программируемая архитектура) |
-
-## Определение (Gartner 2026)
-
-> Context engineering is designing and structuring the relevant data, workflows and environment so AI systems can understand intent, make better decisions and deliver contextual, enterprise-aligned outcomes — without relying on manual prompts.
-
-Context Engineering = programmatic assembly of "Context Package" — точный bundle токенов, отправляемых LLM at inference time.
-
-## Архитектура Context Package
-
-**WISC pattern** (Write/Isolate/Select/Compress):
-
-1. **Write:** Структурировать данные для LLM  
-   - Не "свалка токенов", а schemas, metadata, typed information
-   
-2. **Isolate:** Определить границы контекста  
-   - Что релевантно для текущей задачи (scope control)
-   
-3. **Select:** Динамический выбор источников информации  
-   - Retrieval architecture, source prioritization
-   
-4. **Compress:** Минимизация токенов без потери смысла  
-   - Summarization, deduplication, context window management
-
-## Почему смена парадигмы произошла в 2026
-
-**Adoption stats:**
-- 57% organizations have AI agents in production (LangChain 2025)
-- 32% cite quality as top barrier
-- Root cause analysis: failures traced to poor context management, NOT LLM capabilities
-
-**Context drift kills agents:**
-- 65% of enterprise AI failures (2025) = context drift or memory loss during multi-step reasoning
-- NOT raw context window exhaustion
-
-## Production performance (2026 benchmarks)
-
-Organizations investing in context architectures report:
-- **Response time:** +50% improvement
-- **Output quality:** +40% higher
-- **ROI:** Measurable, justifies AI investments
-
-## Ключевое различение от prompt engineering
-
-Prompt engineering treats AI as chatbot (needs clever instructions).  
-Context engineering treats AI as reasoning engine (needs comprehensive information architecture).
-
-## Failure modes
-
-### FM.001: Context Drift
-**Severity:** Критический  
-**Scenario:** Агент в multi-step reasoning теряет релевантную информацию из более ранних шагов → решения становятся субоптимальными или неверными.  
-**Mitigation:**
-- Hierarchical memory (working + episodic + semantic)
-- Importance scoring (что хранить, что забыть)
-- Periodic context refresh
-
-### FM.002: Information Starvation
-**Severity:** Средний  
-**Scenario:** Context Package недостаточен → агент hallucinating или asking for missing info on every step.  
-**Mitigation:**
-- Pre-analysis requirements (какие источники нужны)
-- Proactive data injection
-- Dynamic source expansion
-
-### FM.003: Token Budget Explosion
-**Severity:** Средний  
-**Scenario:** Context Package слишком велик → latency + cost escalation.  
-**Mitigation:**
-- Compression strategies (summarization, deduplication)
-- Lazy loading (fetch on-demand)
-- Tiered context (core + extended)
-
-## Связь с другими сущностями Pack'ов
-
-- **DP.SOTA.006:** Coordination cost reduction → context engineering снижает coordination overhead (agents share structured context, not free-form text)
-- **AS.M.001 (GEPA):** Reflective optimization → context = learning signal (не scalar reward)
-- **AS.M.005 (Agentic Plan Caching):** Caching требует structured context для similarity matching
-
-## Источники
-
-1. Gartner (2026): "Context engineering: Why it's Replacing Prompt Engineering for Enterprise AI Success"  
-   URL: https://www.gartner.com/en/articles/context-engineering
-
-2. LangChain (2025): "State of Agent Engineering" report  
-   57% production adoption, 32% quality barrier = poor context management
-
-3. SDG Group (2026): "The Evolution of Prompt Engineering to Context Design in 2026"  
-   URL: https://www.sdggroup.com/en/insights/blog/the-evolution-of-prompt-engineering-to-context-design-in-2026
-
-4. DEV Community (2026): "Context Engineering: Why It's Replacing Prompt Engineering in 2026"  
-   URL: https://dev.to/serenitiesai/context-engineering-why-its-replacing-prompt-engineering-in-2026-1b4g
-```
-
----
-
-## CANDIDATE #2: Agentic Plan Caching (AS.M.005)
+## Candidate #1: AS.FM.012 — Cascade Failures in Multi-Agent Systems
 
 **Pack:** PACK-autonomous-agents  
-**Type:** Method  
-**Priority:** ВЫСОКАЯ
+**Тип:** Failure Mode  
+**Статус:** Ready for capture  
 
-### Предварительная формулировка
+**Суть:** Агент допускает ошибку в критическом действии → запускает цепную реакцию автоматических реакций других агентов/систем → ущерб обнаружен слишком поздно.
 
-```markdown
----
-id: AS.M.005
-type: method
-title: Agentic Plan Caching
-status: production-ready
-source: NeurIPS 2025, arXiv:2506.14852
-date: 2026-01
----
+**Severity:** Критический (особенно в multi-agent environments)
 
-# Agentic Plan Caching (APC)
+**Сценарий:**
+1. Агент A неправильно обрабатывает входящий запрос (email, webhook, API call)
+2. Отправляет некорректный ответ/действие
+3. Агент B реагирует на это действие автоматически
+4. Агент C видит действия A+B и выполняет следующий шаг
+5. К моменту обнаружения ошибки — нарушен SLA, потеряны деньги, испорчена репутация
 
-## Проблема
+**Примеры:**
+- Email agent неправильно классифицировал критический запрос клиента → автоматически отправил шаблонный отказ → CRM agent закрыл тикет → billing agent приостановил подписку → клиент ушёл
+- Monitoring agent ложно детектировал инцидент → escalation agent разбудил всю команду в 3am → incident response agent создал postmortem → всё оказалось false positive
 
-Autonomous agents при каждом похожем task-е переделывают planning с нуля:
-- Высокая latency (re-planning overhead)
-- Высокий cost (LLM calls for planning on every execution)
-- Inefficiency на repetitive tasks
-
-**Example:** Среднее решение GitHub issue через агента:
-- Trajectory: 48.4K tokens в 40 шагов
-- Accumulated token usage: 1.0M tokens per issue
-
-## Решение
-
-**Test-time memory система:** Extract, store, adapt, reuse structured plan templates.
-
-**Key distinction:** Semantic caching vs Plan caching
-
-| Аспект | Semantic Caching | Agentic Plan Caching |
-|--------|------------------|---------------------|
-| **Что кэшируется** | Результаты (outputs) | Планы выполнения (plans) |
-| **Когда применимо** | Идентичные запросы | Семантически похожие задачи |
-| **Адаптация** | Нет (используется as-is) | Да (template → specific plan) |
-| **Scope** | Single-turn | Multi-step execution |
-
-## Алгоритм
-
-### Phase 1: Plan Extraction
-После завершения task execution:
-1. Analyze completed trajectory
-2. Extract abstract plan structure (steps, dependencies, decision points)
-3. Remove task-specific details → template
-
-### Phase 2: Plan Storage
-1. Index plan template by:
-   - Keyword embeddings (task description)
-   - Structural features (plan complexity, step count)
-2. Store in plan cache with metadata (success rate, average execution time)
-
-### Phase 3: Plan Matching
-При новом task request:
-1. Keyword-based retrieval (top-K similar plans)
-2. Structural similarity check (is plan architecture applicable?)
-3. Select best match
-
-### Phase 4: Plan Adaptation
-1. Lightweight LLM reads:
-   - Cached plan template
-   - New task specifics
-2. Adapts template:
-   - Fill task-specific parameters
-   - Adjust constraints
-   - Modify step details
-3. Output: Task-specific plan (ready for execution)
-
-## Performance (Production Benchmarks, 2026)
-
-**Metrics across diverse agentic applications:**
-- **Cost reduction:** 50.31% в среднем
-- **Latency reduction:** 27.28%
-- **Quality retention:** 96.61% от optimal performance (no caching)
-- **Overhead:** 1.04% от total serving cost (negligible)
-
-**Efficiency gain:** ~2x на повторяющихся task patterns.
-
-## Use Cases в IWE
-
-### 1. Scheduler.sh (WP-132)
-**Task patterns:**
-- Daily rituals (morning review, planning)
-- Weekly reviews (reflection, next week planning)
-- Monthly retrospectives
-
-**Benefit:** Одинаковые структуры планов → APC даст ~2x speedup.
-
-### 2. Scout (R23) — Reconnaissance
-**Task pattern:**
-- Source scan → findings extraction → relevance assessment → capture candidates
-- Повторяется каждую ночь
-
-**Benefit:** Plan для reconnaissance pipeline кэшируется, адаптируется под новые sources.
-
-### 3. Экстрактор (R2) — Entity Extraction
-**Task pattern:**
-- Read capture candidate → identify entity type → extract fields → format as Pack entity
-- Повторяется для каждого candidate
-
-**Benefit:** Plan template per entity type (Distinction, Method, SOTA, FM).
-
-## Failure Modes
-
-### FM.001: Overfitting to Cached Plan
-**Severity:** Средний  
-**Scenario:** Context изменился (новый тип задачи, другие constraints), но cached plan всё ещё матчится → субоптимальное выполнение.  
 **Mitigation:**
-- Similarity threshold (reject если similarity < 0.7)
-- Expiration TTL (cache invalidation after N days)
-- Performance monitoring (if adapted plan performs poorly, invalidate cache entry)
+1. **Human-in-the-loop checkpoints** — для действий с финансовым/операционным/security воздействием агент ОБЯЗАН получить явное подтверждение человека
+2. **Blast radius limits** — ограничивать scope автоматических действий (например: не более 5 email в минуту, не более $100 транзакций без подтверждения)
+3. **Undo/rollback capabilities** — каждое автоматическое действие должно иметь механизм отката
+4. **Circuit breakers** — если агент обнаружил аномальную активность (например, слишком много действий за короткое время) → автоматическая пауза + alert
+5. **Audit trail** — полный лог действий для post-incident analysis
 
-### FM.002: Cold Start Problem
-**Severity:** Низкий  
-**Scenario:** Первые N executions нового task type → no cached plans → нет speedup.  
-**Mitigation:**
-- Seed cache с exemplar plans (pre-populate для known task types)
-- Fast learning (после 1-2 executions уже есть plan template)
+**Связь с другими FM:**
+- Усиливает AS.FM.011 (Hallucination in Action) — ложная информация в действии × cascade = катастрофа
+- Взаимодействует с AS.FM.009 (Loop of Death) — если cascade loop замыкается, получается бесконечный retry
 
-### FM.003: Cache Pollution
-**Severity:** Низкий  
-**Scenario:** Неудачные executions попадают в cache → последующие tasks адаптируются из bad plans.  
-**Mitigation:**
-- Quality filter (кэшируй только successful executions)
-- Success rate tracking (evict plans с low success rate)
+**Detection:**
+- Аномально высокая частота действий от связанных агентов
+- Рост error rate в downstream системах
+- Alerts от monitoring систем о нарушении SLA/budgets
 
-## Сравнение с другими методами
-
-### vs AgentDiet (Trajectory Reduction)
-- **AgentDiet:** Reduce trajectory content (remove useless/redundant info)
-- **APC:** Cache plans (avoid re-planning)
-- **Complementary:** Can be combined (reduce + cache)
-
-### vs TrajTune (Trajectory-Based Prompt Optimization)
-- **TrajTune:** Optimize prompts based on execution traces
-- **APC:** Cache and reuse plans
-- **Difference:** TrajTune = offline optimization, APC = online reuse
-
-## Связь с другими сущностями Pack'ов
-
-- **DP.SOTA.008 (Context Engineering):** APC requires structured context для plan matching
-- **AS.M.001 (GEPA):** GEPA optimizes plans through reflection; APC reuses optimized plans
-- **DP.SOTA.006 (Coordination Cost):** APC снижает coordination overhead (agents share cached plans)
-
-## Источники
-
-1. arXiv:2506.14852 (updated Jan 2026): "Agentic Plan Caching: Test-Time Memory for Fast and Cost-Efficient LLM Agents"  
-   URL: https://arxiv.org/abs/2506.14852
-
-2. NeurIPS 2025 Poster: "Agentic Plan Caching"  
-   URL: https://neurips.cc/virtual/2025/poster/116166
-
-3. OpenReview (2025): Discussion and reviews  
-   URL: https://openreview.net/forum?id=n4V3MSqK77
-```
+**Источники:**
+- [Vectara: Awesome Agent Failures](https://github.com/vectara/awesome-agent-failures)
+- [EdStellar: AI Agent Reliability Challenges](https://www.edstellar.com/blog/ai-agent-reliability-challenges)
+- [Maxim: Multi-Agent System Reliability](https://www.getmaxim.ai/articles/multi-agent-system-reliability-failure-patterns-root-causes-and-production-validation-strategies)
 
 ---
 
-## CANDIDATE #3: Four-Type Memory Architecture for Autonomous Agents (AS.M.006)
+## Candidate #2: AS.FM.013 — Production Accuracy Drop (Context Rot + Tool Combination)
 
 **Pack:** PACK-autonomous-agents  
-**Type:** Method (memory architecture design)  
-**Priority:** СРЕДНЯЯ
+**Тип:** Failure Mode  
+**Статус:** Ready for capture  
 
-### Предварительная формулировка
+**Суть:** Агенты в production показывают значительно более низкую accuracy по сравнению с pilot/dev средой из-за context rot и комбинирования выводов нескольких инструментов в фактически несогласованные ответы.
 
-```markdown
----
-id: AS.M.006
-type: method
-title: Four-Type Memory Architecture for Autonomous Agents
-status: production-converged
-source: Oracle Developers Blog, 47billion, CoALA framework
-date: 2026
----
+**Severity:** Высокий (61% компаний столкнулись с этим)
 
-# Four-Type Memory Architecture for Autonomous Agents
+**Сценарий:**
+1. В pilot/dev среде агент протестирован на небольшом наборе данных → accuracy 95%+
+2. В production context window растёт (больше истории, больше инструментов, больше данных)
+3. Context rot: по мере роста токенов в context window способность модели точно извлекать информацию падает
+4. Tool combination error: агент комбинирует выводы Tool A и Tool B в ответ, который звучит убедительно, но фактически несогласован
+5. Accuracy падает до 60-70%, но агент продолжает работать (т.к. нет явных errors)
 
-## Проблема
+**Примеры:**
+- Customer support agent комбинирует данные из CRM (старый адрес) и Shipping API (новый адрес) → отправляет package на неправильный адрес
+- Research agent извлекает факт из источника A и контекст из источника B → создаёт цитату, которой не существует в оригинале
 
-Most agents today have ONLY working memory (current context window).
+**Root Causes:**
+1. **Context rot:** LLMs have finite attention budget. Every token competes for attention. As context grows → precision drops, reasoning weakens.
+2. **Tool output combination:** агент не проверяет consistency между outputs разных tools, просто собирает их в единый ответ
 
-> "That's like trying to do your job using nothing but a whiteboard that gets wiped clean every evening."
-
-**Production failures (2026):**
-- Agents forget user preferences across sessions
-- Repeat mistakes (no learning from past errors)
-- Cannot build domain expertise over time
-- Inefficient (re-learn procedures on every task)
-
-## Решение
-
-Field converged on **4 memory types**, mapping to human cognition (CoALA framework):
-
-1. **Working Memory**
-2. **Episodic Memory**
-3. **Semantic Memory**
-4. **Procedural Memory**
-
-## Архитектура
-
-### 1. Working Memory
-
-**Суть:** Current context window  
-**Содержимое:** Live conversation, active task state, temporary variables  
-**Lifetime:** Single session (wiped on termination)  
-**Характеристика:** Fast access, limited capacity
-
-**Аналогия:** Whiteboard — short-term scratchpad.
-
-### 2. Episodic Memory
-
-**Суть:** What happened (timestamped events)  
-**Содержимое:**
-- Conversation turns
-- Tool invocations
-- API results
-- User corrections
-- Failures and successes
-
-**Lifetime:** Long-term (queryable timeline)  
-**Характеристика:** Chronological, context-rich
-
-**Аналогия:** Diary — "I remember when..."
-
-**Query patterns:**
-- "What did user ask last Tuesday?"
-- "When did this error first occur?"
-- "What was the outcome of previous similar task?"
-
-### 3. Semantic Memory
-
-**Суть:** What I know (stable knowledge)  
-**Содержимое:**
-- Facts
-- Policies
-- Domain definitions
-- Product knowledge
-- Business rules
-- Reference information
-
-**Lifetime:** Long-term (evolves slowly)  
-**Характеристика:** Declarative, structured
-
-**Аналогия:** Encyclopedia — domain knowledge base.
-
-**Query patterns:**
-- "What is company policy on X?"
-- "What are product features of Y?"
-- "What does term Z mean in this domain?"
-
-### 4. Procedural Memory
-
-**Суть:** How to do things (workflows)  
-**Содержимое:**
-- Standard operating procedures
-- Playbooks
-- Action sequences
-- Policy-driven processes
-- Repeated operational patterns
-
-**Lifetime:** Long-term (improves with experience)  
-**Характеристика:** Executable, pattern-based
-
-**Аналогия:** Recipe book — "Here's how I do X."
-
-**Query patterns:**
-- "How do I resolve ticket type A?"
-- "What's the workflow for onboarding?"
-- "What steps did I take last time this happened?"
-
-## Production Use Case: Customer Service
-
-**Context:** Customer service = most common use case for production agents (26.5% of deployments, LangChain 2025)
-
-**Memory requirements:** Needs ALL 4 types working together.
-
-| Memory Type | Role in Customer Service |
-|-------------|-------------------------|
-| **Working** | Track live conversation (current issue) |
-| **Episodic** | Recall past tickets, interactions with this customer |
-| **Semantic** | Store customer preferences, account details, product knowledge |
-| **Procedural** | Encode resolution workflows, escalation rules |
-
-**Without 4-type memory:**
-- Agent asks same questions every session (no episodic)
-- Doesn't know customer preferences (no semantic)
-- Inefficient resolution (no procedural patterns)
-
-## Database Architecture Patterns
-
-Разные типы памяти → разные database strengths:
-
-| Memory Type | Best Database | Why |
-|-------------|---------------|-----|
-| **Working** | In-memory (Redis) | Fast access, temporary |
-| **Episodic** | Graph DB (Neo4j) | Fast traversal, relationships (event → event) |
-| **Semantic** | Vector DB (Pinecone, Weaviate) | Semantic similarity search |
-| **Procedural** | Graph DB or SQL | Workflow dependencies, ACID compliance |
-
-**Unified approach (2026 trend):**
-- One database connection for complete context windows
-- ACID guarantees across memory types
-- Single query spans episodic + semantic + procedural
-
-**Example (Postgres):**
-- Episodic: Timestamped events table
-- Semantic: JSON/JSONB columns for facts
-- Procedural: Stored procedures or workflow tables
-- Vector extension (pgvector) for semantic search
-
-## Challenges and Mitigations
-
-### Challenge #1: Storage vs Inference Trade-off
-**Problem:** Full history = cost explosion  
 **Mitigation:**
-- Hierarchical memory (hot vs cold storage)
-- Importance scoring (what to keep, what to archive)
-- Dynamic forgetting (time-based decay, relevance-based eviction)
+1. **Independent verification layer** — для критических фактов требовать подтверждение из source-of-truth (не полагаться только на model memory)
+2. **Source-of-truth anchoring** (уже есть в AS.FM.011, расширить) — каждый факт должен быть привязан к конкретному источнику
+3. **Consistency checks** — перед финальным ответом проверять, что outputs всех tools logically consistent
+4. **Context pruning** — агрессивно удалять irrelevant context (не держать весь history)
+5. **Monitoring accuracy drift** — continuous tracking accuracy в production (не полагаться на pilot metrics)
 
-### Challenge #2: Latency
-**Problem:** Constant retrieve/store decisions slow response  
-**Mitigation:**
-- Lazy loading (fetch on-demand)
-- Prefetching (predict what will be needed)
-- Caching layer (frequently accessed memories)
+**Detection:**
+- User reports о factual inconsistencies
+- Automated fact-checking против ground truth
+- Comparison production accuracy vs pilot baseline
 
-### Challenge #3: Forgetting
-**Problem:** When/what to delete? (hardest challenge, 2026)  
-**Mitigation:**
-- Automated decay functions (temporal forgetting)
-- Relevance-based pruning (low-importance → archive)
-- User-controlled retention policies (regulatory compliance)
+**IWE Context:**
+- Scout комбинирует данные из multiple web searches → может создать "findings" с несогласованными фактами
+- Mitigation: reasoning обязателен для каждой находки (source-of-truth anchor)
 
-## Memory Tools and Frameworks (2026)
-
-### LangMem
-- Native integration as long-term memory layer
-- Supports semantic, episodic, procedural types
-- Handles fact extraction + behavior-level memory
-
-### Mem0, Zep, Hindsight
-- Production memory systems with different trade-offs
-- Comparison: Mem0 (ease of use), Zep (performance), Hindsight (customization)
-
-## Failure Modes
-
-### FM.001: Memory Pollution
-**Severity:** Средний  
-**Scenario:** Agent stores incorrect facts or failed procedures → contaminates future decisions.  
-**Mitigation:**
-- Validation before storage (don't memorize hallucinations)
-- Confidence scoring (low-confidence memories = tentative)
-- Correction mechanism (user can fix stored memories)
-
-### FM.002: Memory Overload
-**Severity:** Средний  
-**Scenario:** Agent accumulates too much → retrieval becomes slow, relevance drops.  
-**Mitigation:**
-- Periodic cleanup (archive old episodic memories)
-- Importance-based eviction (keep high-value, discard low-value)
-
-### FM.003: Context Window Starvation
-**Severity:** Критический  
-**Scenario:** Working memory filled with retrieved long-term memories → no space for current task.  
-**Mitigation:**
-- Summarization (compress retrieved memories)
-- Tiered retrieval (fetch headlines first, details on-demand)
-
-## Связь с другими сущностями Pack'ов
-
-- **DP.SOTA.008 (Context Engineering):** Memory architecture = foundation for Context Package assembly
-- **AS.M.005 (Agentic Plan Caching):** Procedural memory stores cached plans
-- **AS.M.001 (GEPA):** Episodic memory = full execution traces for reflection
-
-## Источники
-
-1. Oracle Developers Blog (2026): "Agent Memory: Why Your AI Has Amnesia and How to Fix It"  
-   URL: https://blogs.oracle.com/developers/agent-memory-why-your-ai-has-amnesia-and-how-to-fix-it
-
-2. 47billion (2026): "AI Agent Memory: Types, Implementation, Best Practices 2026"  
-   URL: https://47billion.com/blog/ai-agent-memory-types-implementation-best-practices/
-
-3. MachineLearningMastery (2026): "Beyond Short-term Memory: The 3 Types of Long-term Memory AI Agents Need"  
-   URL: https://machinelearningmastery.com/beyond-short-term-memory-the-3-types-of-long-term-memory-ai-agents-need/
-
-4. LangChain (2025): "State of Agent Engineering" — customer service use case (26.5%)
-```
+**Источники:**
+- [EdStellar: AI Agent Reliability Challenges](https://www.edstellar.com/blog/ai-agent-reliability-challenges)
+- [Sendbird: 10 Major Agentic AI Challenges](https://sendbird.com/blog/agentic-ai-challenges)
 
 ---
 
-## CANDIDATE #4: Graduated Governance for Agent Autonomy (AS.M.007)
+## Candidate #3: AS.FM.014 — Exponential Error Compounding in Multi-Step Workflows
 
 **Pack:** PACK-autonomous-agents  
-**Type:** Method (governance framework)  
-**Priority:** СРЕДНЯЯ
+**Тип:** Failure Mode  
+**Статус:** Ready for capture  
 
-### Предварительная формулировка
+**Суть:** В multi-step workflows ошибки компаундятся экспоненциально: если каждый шаг 95% reliable → за 20 шагов success rate падает до 36%.
 
-```markdown
----
-id: AS.M.007
-type: method
-title: Graduated Governance for Agent Autonomy
-status: emerging-standard
-source: WEF Feb 2026, Cloud Security Alliance (ATF)
-date: 2026-02
----
+**Severity:** Критический для long-running agents (scheduler, pipeline agents)
 
-# Graduated Governance for Agent Autonomy
+**Сценарий:**
+1. Агент выполняет workflow из N шагов (например: pull code → parse data → generate plan → commit → push)
+2. Каждый шаг имеет reliability R (например, 95%)
+3. Итоговая вероятность успеха = R^N
+4. Для R=0.95, N=20: success = 0.95^20 = 0.36 (36%)
+5. Агент завершает workflow в 36% случаев → 64% failures
 
-## Проблема
+**Математика:**
+- 1 step @ 95% reliability: 95% success
+- 5 steps: 0.95^5 = 77% success
+- 10 steps: 0.95^10 = 60% success
+- 20 steps: 0.95^20 = 36% success
+- 50 steps: 0.95^50 = 8% success
 
-Autonomous agents с неограниченной автономией = high risk:
-- Silent escalation of authority (agent делает больше, чем разрешено)
-- Opaque decision-making (user не понимает, почему агент сделал X)
-- Governance gaps (нет audit trail, accountability)
+**Примеры:**
+- Scheduler agent (20+ шагов): git pull → WakaTime parse → fleeting-notes read → plan generate → Linear create tasks → commit → push
+  - Если каждый шаг 95% reliable → only 36% успешных запусков
+- Data pipeline agent (50+ шагов): extract → transform → validate → load → index → notify
+  - При 95% per-step → только 8% успешных runs
 
-**Production challenge:** How to safely increase agent autonomy from "recommend actions" to "take actions autonomously"?
+**Root Causes:**
+1. Независимые failure modes на каждом шаге (network error, API timeout, parsing error, etc.)
+2. Отсутствие error budgets — агент не знает, когда остановиться
+3. Retry на failed steps увеличивает N → ещё больше снижает итоговую reliability
 
-## Решение
-
-**Layered Trust Stack** (WEF 2026) + **Agentic Trust Framework** (ATF, Cloud Security Alliance)
-
-Graduated approach: агент проходит maturity levels с чёткими критериями и контролями на каждом уровне.
-
-## Trust Stack Architecture (5 Layers)
-
-### Layer 1: Legible Reasoning
-**Requirement:** Agent explains outputs at appropriate detail level.  
-**Control:** Reasoning traces available for inspection (not black box).  
-**User capability:** "Why did you do X?" → agent provides justification.
-
-### Layer 2: Bounded Agency
-**Requirement:** Clear limits on what agent can do/decide/recommend.  
-**Control:** No silent escalation of autonomy.  
-**Mechanism:**
-- Permission model (read vs write vs execute)
-- Scope boundaries (what domains agent can operate in)
-- Approval gates (certain actions require human confirmation)
-
-### Layer 3: Goal Transparency
-**Requirement:** User understands agent's objectives.  
-**Control:** Agent declares its goals upfront.  
-**Example:** "My goal is to optimize X within constraints Y, Z."
-
-### Layer 4: Contestability & Override
-**Requirement:** User can challenge agent's decisions and override.  
-**Control:** Rollback capability, manual intervention.  
-**Mechanism:**
-- Undo action (if reversible)
-- Stop execution (if in-progress)
-- Correct agent (if mistaken)
-
-### Layer 5: Governance by Design
-**Requirement:** Embedded logging, auditability.  
-**Control:** All agent actions logged with context.  
-**Audit trail:**
-- What action taken
-- When
-- Why (reasoning)
-- Who authorized (user or policy)
-
-## Agentic Trust Framework (ATF) — Graduated Maturity Levels
-
-**ATF = open governance specification** for autonomous agents (CSA, Feb 2026).
-
-| Level | Name | Autonomy | Human Role | Controls |
-|-------|------|----------|-----------|----------|
-| **0** | Manual | None | Performs all actions | Agent observes only |
-| **1** | Observe & Report | Minimal | Reviews reports, decides | Logging, monitoring |
-| **2** | Recommend | Low | Approves actions | Pre-action approval gate |
-| **3** | Act with Notification | Medium | Post-action review | Audit trail, rollback |
-| **4** | Act Autonomously | High | Exception handling only | Governance policies, circuit breakers |
-
-### Level 1: Foundation (Observe & Report)
-**Agent capabilities:**
-- Observe environment (read access)
-- Analyze data
-- Report findings
-- Recommend actions (human approval required)
-
-**Controls:**
-- No write access
-- No execution authority
-- Logging of all observations
-
-**Use case:** Scout (R23) в текущей форме — reconnaissance only, no writes.
-
-### Level 2: Assisted (Recommend with Approval)
-**Agent capabilities:**
-- + Propose specific actions
-- + Provide reasoning
-- Human approves before execution
-
-**Controls:**
-- Pre-action approval gate (explicit user confirmation)
-- Action preview (show what will happen)
-
-**Use case:** Экстрактор (R2) — предлагает entity captures, пользователь утверждает.
-
-### Level 3: Supervised (Act with Notification)
-**Agent capabilities:**
-- + Execute actions autonomously
-- Post-action notification (user informed after)
-
-**Controls:**
-- Bounded scope (only certain actions allowed)
-- Audit trail (all actions logged)
-- Rollback capability
-
-**Use case:** Scheduler.sh (WP-132) — автоматически создаёт daily plan, уведомляет пользователя.
-
-### Level 4: Autonomous (Act Independently)
-**Agent capabilities:**
-- + Full execution authority within domain
-- + Exception handling
-- Human intervention only for edge cases
-
-**Controls:**
-- Governance policies (embedded rules)
-- Circuit breakers (stop if anomaly detected)
-- Periodic review (human audits performance)
-
-**Use case:** Future R1 (Strategist) с delegation authority для tactical decisions.
-
-## Progression Criteria (How to Graduate to Next Level)
-
-**Level 1 → 2:**
-- Demonstrate reliable observation (low false positive rate)
-- Recommendations consistently aligned with user intent
-
-**Level 2 → 3:**
-- High approval rate (>90% of recommendations accepted)
-- No significant errors in past N executions
-
-**Level 3 → 4:**
-- Post-action interventions rare (<5%)
-- Trust earned over time (track record)
-- Governance policies validated
-
-## Trust Boundary (Microsoft Framework, 2026)
-
-**Definition:** Rigorously defined, measured, managed perimeter of agent authority.
-
-**Components:**
-1. **Inputs:** What data agent can access
-2. **Outputs:** What actions agent can take
-3. **Environment:** Where agent operates (sandbox vs production)
-4. **Audit:** How actions are logged and reviewed
-
-**Measurement:**
-- Boundary violations (attempted unauthorized actions)
-- Escalation requests (agent asks for permission)
-- Override frequency (how often human intervenes)
-
-## Failure Modes
-
-### FM.001: Silent Escalation
-**Severity:** Критический  
-**Scenario:** Agent начинает делать больше, чем разрешено, без уведомления пользователя.  
 **Mitigation:**
-- Explicit permission model (check before every action)
-- Logging всех попыток выхода за границы
-- Alert на boundary violations
+1. **Error budgets per stage** — каждая стадия workflow имеет allowed failure rate
+2. **Early exit** — при первой критической ошибке останавливать весь workflow (не пытаться продолжить)
+3. **Checkpointing** — сохранять промежуточное состояние → при failure можно resume с checkpoint, не начинать с нуля
+4. **Increase per-step reliability** — focus на улучшение reliability каждого шага (95% → 98% → success 20 steps: 67% vs 36%)
+5. **Reduce N** — минимизировать количество шагов (меньше шагов = выше итоговая reliability)
+6. **Idempotency** — каждый шаг должен быть idempotent (можно retry без побочных эффектов)
 
-### FM.002: Brittle Governance
-**Severity:** Средний  
-**Scenario:** Governance rules слишком строгие → agent blocked на легитимных действиях.  
-**Mitigation:**
-- Adaptive policies (learn from override patterns)
-- Graduated exceptions (user can grant one-time permissions)
+**IWE Context:**
+- scheduler.sh (WP-132): 20+ шагов без error budgets → vulnerable
+- Нужно:
+  - Checkpointing после критических шагов (git pull, WakaTime parse)
+  - Early exit на первой critical error
+  - Error budget: allow max 2 non-critical errors per run
 
-### FM.003: Audit Fatigue
-**Severity:** Низкий  
-**Scenario:** Слишком много логов → человек перестаёт их проверять.  
-**Mitigation:**
-- Summarization (highlight anomalies, not routine actions)
-- Anomaly detection (AI reviews AI — meta-oversight)
+**Improvement Example:**
+- Improve per-step reliability 95% → 98%:
+  - 20 steps: 36% → 67% success (почти 2x)
+  - 10 steps: 60% → 82% success
+- Reduce steps 20 → 10 @ 95%:
+  - 36% → 60% success
 
-## Связь с другими сущностями Pack'ов
-
-- **AS.D.007 (Bounded Agency ≠ Automation):** Trust Stack implements bounds на agent autonomy
-- **DP (Platform Architecture):** Permission model, audit trail = platform services
-- **VR (Verification & Acceptance):** Post-action review = verification step
-
-## Источники
-
-1. World Economic Forum (Feb 2026): "How to design for trust in the age of AI agents"  
-   URL: https://www.weforum.org/stories/2026/02/how-to-design-for-trust-in-the-age-of-ai-agents/
-
-2. Cloud Security Alliance (Feb 2026): "The Agentic Trust Framework: Zero Trust Governance for AI Agents"  
-   URL: https://cloudsecurityalliance.org/blog/2026/02/02/the-agentic-trust-framework-zero-trust-governance-for-ai-agents
-
-3. Microsoft Community Hub (Jan 2026): "Architecting Trust: A NIST-Based Security Governance Framework for AI Agents"  
-   URL: https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/architecting-trust-a-nist-based-security-governance-framework-for-ai-agents/4490556
-```
+**Источники:**
+- [Maxim: Multi-Agent System Reliability](https://www.getmaxim.ai/articles/multi-agent-system-reliability-failure-patterns-root-causes-and-production-validation-strategies)
+- [GetMaxim: Ensuring AI Agent Reliability](https://www.getmaxim.ai/articles/ensuring-ai-agent-reliability-in-production/)
 
 ---
 
-## CANDIDATE #5: Multi-Agent Orchestration Production Patterns (AS.SOTA.003)
+## Candidate #4: AS.FM.015 — Intent Misalignment (Wrong Goal Optimization)
 
 **Pack:** PACK-autonomous-agents  
-**Type:** SOTA-update (production best practices)  
-**Priority:** СРЕДНЯЯ
+**Тип:** Failure Mode  
+**Статус:** Ready for capture  
 
-### Предварительная формулировка
+**Суть:** Агент неправильно понимает цель пользователя и оптимизирует неправильный objective, тратя ресурсы (время, $, API calls) на нерелевантные задачи.
 
-```markdown
----
-id: AS.SOTA.003
-type: sota
-title: Multi-Agent Orchestration Production Patterns
-status: converging
-source: Iterathon 2026, MarkTechPost, Medium
-date: 2026-03
----
+**Severity:** Средний (частый, но обычно не catastrophic)
 
-# Multi-Agent Orchestration Production Patterns
+**Сценарий:**
+1. Пользователь даёт задачу агенту (например: "Помоги спланировать неделю")
+2. Агент интерпретирует это как "создать детальный план каждого часа на 7 дней"
+3. Пользователь имел в виду "выделить 3-5 ключевых приоритетов"
+4. Агент тратит 30 минут (сотни API calls) на создание подробного расписания
+5. Результат: пользователь получает overengineered план, который не нужен
 
-## Adoption Stats (2026)
+**Примеры:**
+- Research agent: "Найди информацию о X" → агент собрал 100 страниц текста, пользователь хотел 3 bullet points
+- Code agent: "Fix the bug" → агент переписал весь модуль, пользователь хотел minimal patch
+- Scout: "Найди SOTA по теме X" → агент принёс 50 findings, пользователь хотел TOP-3
 
-- **40% of enterprise apps** will feature task-specific agents by end of 2026 (up from <5% in 2025) — Gartner prediction
-- **BUT: 10-15% pilot success rate** — только каждый 10-й pilot выходит в production
-- **86% of copilot spending ($7.2B)** → agent-based systems
-- **75% of multi-agent systems** become unmanageable beyond 5 agents
+**Root Causes:**
+1. Недостаточная спецификация цели (vague instructions)
+2. Отсутствие clarifying questions (агент сразу действует, не уточняя intent)
+3. Default к maximalist approach (агент предполагает "больше = лучше")
 
-## Production-Grade Architecture
-
-### Core Primitives (LangGraph model)
-
-1. **Stateful Nodes**
-   - Each agent = node в graph
-   - State persists across executions (SQLite-based persistence)
-
-2. **Cyclical Workflows**
-   - Agents critique and improve own outputs (impossible in DAG-based engines)
-   - Reflexion loops, self-correction
-
-3. **Runtime Graph Mutation**
-   - Workflow structure адаптируется dynamically based on results
-
-4. **Checkpoint Recovery**
-   - If agent fails → reassign or replay node using preserved state
-   - Graceful failover
-
-### Communication: Structured Message Bus
-
-**Pattern (MarkTechPost, Mar 2026):**
-- LangGraph + Pydantic for type-safe messages
-- All inter-agent communication через centralized bus (not direct calls)
-- Benefits:
-  - Modularity (agents decoupled)
-  - Traceability (all messages logged)
-  - Auditability (ACP logging — Agent Communication Protocol)
-
-## Coordination Patterns
-
-### Centralized (Supervisor)
-**Architecture:** Supervisor agent coordinates subagents.  
-**Pros:** Clear control, simple debugging.  
-**Cons:** Potential bottleneck, single point of failure.
-
-**Use case:** Workflow с чёткой последовательностью (data pipeline, где каждый шаг зависит от предыдущего).
-
-### Decentralized (Peer-to-peer)
-**Architecture:** Agents operate autonomously, communicate directly.  
-**Pros:** Flexibility, resilience (no single point of failure).  
-**Cons:** Complexity (coordination overhead), hard to debug.
-
-**Use case:** Emergent behavior желателен (creative tasks, brainstorming).
-
-### Hierarchical (Teams + Leaders)
-**Architecture:** Small teams (3-7 agents) with team leaders, coordinating subgroups.  
-**Pros:** Scales beyond 5 agents (avoid coordination explosion).  
-**Cons:** Multi-level overhead, latency.
-
-**Use case:** Large-scale workflows (enterprise automation).
-
-## Failure Modes (Production Reality)
-
-### FM.001: Complexity Explosion at 5+ Agents
-**Severity:** Критический  
-**Scenario:** Coordination cost растёт квадратично (N agents → N*(N-1)/2 interactions). Beyond 5 agents → system becomes unmanageable.  
 **Mitigation:**
-- Keep teams small (3-7 agents per workflow)
-- Hierarchical structures beyond that
-- Clear role definitions (avoid overlap)
+1. **Explicit goal validation loop** — перед началом работы агент подтверждает цель:
+   - "Я понял задачу как X. Правильно?"
+   - "Ожидаемый результат: Y. Согласны?"
+2. **Scope constraints** — в инструкциях агента явные ограничения:
+   - Scout: max 10 findings per session
+   - Research agent: default output = summary (3-5 bullet points), not full report
+3. **Progressive disclosure** — начать с минимального результата, спросить "нужно больше?"
+4. **Cost budgets** — лимиты на API calls/time per task
+5. **User preference learning** — запоминать, какой level of detail пользователь предпочитает
 
-**Источник:** 75% of multi-agent systems fail this way (Iterathon 2026).
+**Detection:**
+- High API usage без соответствующей user satisfaction
+- User feedback: "Too much", "Not what I asked for"
+- Time spent >> expected for task type
 
-### FM.002: State Loss on Failures
-**Severity:** Высокий  
-**Scenario:** Agent crashes mid-execution → state lost → workflow restart from scratch.  
-**Mitigation:**
-- Persistent state (SQLite, database-backed)
-- Checkpoint recovery (LangGraph model)
-- Idempotent operations (safe to retry)
+**IWE Context:**
+- Scout может принести слишком много findings (если нет ограничения max 10)
+- Strategist может создать слишком детальный план (если пользователь хотел high-level)
+- Mitigation: в каждом агенте явные scope constraints в инструкциях
 
-### FM.003: Observability Black Hole
-**Severity:** Высокий  
-**Scenario:** Multi-agent workflow fails, but no clear indication where/why (debugging nightmare).  
-**Mitigation:**
-- Human-in-the-loop checks (critical decision points)
-- LangSmith observability (debug every agent decision)
-- Structured logging (ACP — all messages logged)
-
-## Performance Benchmarks (IBM Research, 2026)
-
-**With proper orchestration:**
-- **Process hand-offs:** -45%
-- **Decision speed:** 3x improvement
-
-**Economic impact (McKinsey):** Generative AI could add $2.6-4.4T annually to global GDP.
-
-## Best Practices
-
-### 1. Start Small
-- 2-3 agents per workflow initially
-- Prove value before scaling
-
-### 2. Clear Role Definitions
-- Each agent has specific responsibility (no overlap, no gaps)
-- Contract: inputs, outputs, side effects
-
-### 3. Monitoring First
-- Instrument before deploying
-- Alerts on anomalies (latency spikes, error rates)
-
-### 4. Human-in-the-Loop for Critical Paths
-- Autonomous agents for routine tasks
-- Human approval for high-stakes decisions (financial transactions, user-facing actions)
-
-## Tools and Platforms (2026)
-
-### LangGraph Platform
-- Comprehensive solution for deploying/managing agentic applications at scale
-- Production-ready infrastructure
-- Developer tools (LangSmith for debugging)
-
-### LangSmith
-- Agent engineering platform
-- Debug every agent decision
-- Eval changes
-- Deploy in one click
-
-## Связь с другими сущностями Pack'ов
-
-- **DP.SOTA.006 (Coordination Cost):** Multi-agent orchestration = coordination cost mitigation through structured patterns
-- **AS.M.005 (Agentic Plan Caching):** Agents share cached plans → coordination efficiency
-- **AS.M.007 (Graduated Governance):** Supervisor pattern implements Level 3-4 autonomy with oversight
-
-## Источники
-
-1. Iterathon (2026): "Agent Orchestration 2026: LangGraph, CrewAI & AutoGen Guide"  
-   URL: https://iterathon.tech/blog/ai-agent-orchestration-frameworks-2026
-
-2. MarkTechPost (Mar 2026): "How to Design a Production-Grade Multi-Agent Communication System Using LangGraph"  
-   URL: https://www.marktechpost.com/2026/03/01/how-to-design-a-production-grade-multi-agent-communication-system-using-langgraph-structured-message-bus-acp-logging-and-persistent-shared-state-architecture/
-
-3. Medium (2026): "Agent Orchestration: When to Use LangChain, LangGraph, AutoGen"  
-   URL: https://medium.com/@akankshasinha247/agent-orchestration-when-to-use-langchain-langgraph-autogen-or-build-an-agentic-rag-system-cc298f785ea4
-```
+**Источники:**
+- [Sendbird: 10 Major Agentic AI Challenges](https://sendbird.com/blog/agentic-ai-challenges)
+- [EdStellar: AI Agent Reliability Challenges](https://www.edstellar.com/blog/ai-agent-reliability-challenges)
 
 ---
 
-## CANDIDATE #6: EdTech B2B SaaS Unit Economics Benchmarks (ECO.M.002 enrichment)
+## Candidate #5: AS.SOTA.003 Enrichment — Singapore IMDA Framework + WEF March 2026 Data
+
+**Pack:** PACK-autonomous-agents  
+**Тип:** SOTA enrichment  
+**Статус:** Ready for capture  
+
+**Добавить в AS.SOTA.003:**
+
+### Singapore Model AI Governance Framework for Agentic AI (IMDA, March 2026)
+
+Первый в мире национальный фреймворк для безопасного развёртывания автономных агентов. Анонсирован на WEF Annual Meeting 2026 в Давосе.
+
+**Четыре ключевых области:**
+
+1. **Assess and Bound Risks Upfront**
+   - Выбор подходящих agentic use cases (не все задачи подходят для агентов)
+   - Установка явных лимитов на:
+     - Степень автономности (T0-T4)
+     - Доступ к инструментам (tools access control)
+     - Доступ к данным (data access policies)
+   - Risk assessment ПЕРЕД развёртыванием (проактивно, не реактивно)
+
+2. **Human Accountability**
+   - Определение significant checkpoints — точек, где ОБЯЗАТЕЛЬНО требуется human approval
+   - Humans remain meaningfully accountable for agent actions
+   - Правило: агент может выполнять routine операции автономно, но critical decisions/actions требуют explicit human OK
+   - Примеры checkpoints: финансовые транзакции >$X, изменение access control policies, удаление данных, отправка критически важных коммуникаций
+
+3. **Technical Controls Throughout Lifecycle**
+   - Контроли на всех стадиях: design → development → deployment → operation → retirement
+   - Observability: полный audit trail всех действий агента
+   - Guardrails: technical safeguards (rate limits, blast radius controls, circuit breakers)
+   - Continuous monitoring для раннего обнаружения drift/degradation
+
+4. **End-User Responsibility**
+   - Transparency: пользователи должны понимать, что они взаимодействуют с агентом (не обманывать, что это человек)
+   - Education/Training: обучение пользователей работе с агентами, пониманию их capabilities/limitations
+   - Clear escalation paths: пользователь всегда должен иметь возможность перейти к человеку
+
+**WEF Calibration Principle (March 2026):**
+"The degree of autonomy granted to a system should be calibrated to the context in which it operates, the risks involved, and the institutional maturity of the organization deploying it."
+
+**Gap Pilot→Production (WEF/Capgemini, March 2026):**
+- 82% executives планируют adoption агентов в 1-3 года
+- 79% enterprises внедрили агенты в какой-то форме
+- Но только 11% запустили агенты в production
+- **88% failure rate pilot→production** (основная причина: отсутствие зрелого governance)
+- Те агенты, что дошли до production → average ROI 171% (US enterprises: 192%)
+
+**Применение к IWE:**
+- Scout/Strategist/Extractor сейчас на уровне T1 (supervised) — нет explicit human checkpoints
+- Для перехода T1→T2 (autonomous with oversight) нужно:
+  - Определить significant checkpoints (например: Scout не коммитит находки напрямую в Pack — только proposals)
+  - Установить blast radius limits (Scout не может создавать >10 findings за сессию)
+  - Реализовать audit trail (все действия логируются)
+  - Добавить transparency (каждая находка содержит reasoning — почему Scout считает её релевантной)
+
+**Источники:**
+- [WEF: AI Agents in Action (March 2026)](https://www.weforum.org/publications/ai-agents-in-action-foundations-for-evaluation-and-governance/)
+- [Singapore IMDA: New Model AI Governance Framework for Agentic AI](https://www.imda.gov.sg/resources/press-releases-factsheets-and-speeches/press-releases/2026/new-model-ai-governance-framework-for-agentic-ai)
+- [WEF: From Chatbots to Assistants — Governance is Key](https://www.weforum.org/stories/2026/03/ai-agent-autonomy-governance/)
+
+---
+
+## Candidate #6: ECO.M.002 Enrichment — EdTech Churn 9.6%, Efficacy Reckoning, Funding Drop
 
 **Pack:** PACK-ecosystem  
-**Type:** Metric (industry benchmarks)  
-**Priority:** СРЕДНЯЯ (для WP-145)
+**Тип:** Method enrichment (benchmarks)  
+**Статус:** Ready for capture  
 
-### Предварительная формулировка
+**Добавить в ECO.M.002:**
 
-```markdown
----
-id: ECO.M.002
-type: metric
-title: EdTech B2B SaaS Unit Economics Benchmarks
-status: updated
-source: Data-Mania 2026, Proven SaaS, WeAreFounders
-date: 2026-03
----
+**Churn Rate:**
+- EdTech monthly churn: **9.6%** (highest among all B2B SaaS verticals)
+- B2B SaaS average: 3.5%
+- **Implication:** retention strategy = critical для EdTech unit economics. Без strong retention высокий CAC не окупится.
 
-# EdTech B2B SaaS Unit Economics Benchmarks (2026)
+**CAC Payback:**
+- EdTech payback period: **3.8 months** (best in class для некоторых сегментов)
+- Benchmark: sustainable SaaS payback <12 months
 
-## Churn Rates
+**Market Shifts 2026:**
 
-**EdTech = highest churn among SaaS verticals:**
-- **EdTech monthly churn:** 9.6%
-- **Enterprise SaaS:** 0.25%
-- **38x difference** (EdTech vs enterprise)
+1. **The Efficacy Reckoning**
+   - Institutional buyers и VCs больше не принимают engagement metrics как proof of value
+   - Требуется verifiable evidence: продукт улучшает learning outcomes (student mastery OR teacher productivity) минимум на **10%**
+   - Методы доказательства: Logic Models, third-party research, controlled studies
+   - **Для IWE:** systems thinking outcomes measurable через FPF assessment framework → конкурентное преимущество
 
-**Average B2B SaaS:** 3.5% monthly churn
+2. **Agentic AI Trend**
+   - Переход от passive content delivery (courses, videos) к autonomous agentic systems
+   - Agents manage student feedback, personalization, adaptive learning paths
+   - **Для IWE:** ИИ-агенты (Scout, Strategist, Navigator, Extractor) = core value proposition, не bolt-on feature
 
-**Interpretation:** EdTech высокая volatility → retention стратегия критична.
+**Funding Environment 2026:**
+- EdTech funding drop: **86.75%** (2024: $270M/48 rounds → 2026: $35.8M/21 rounds)
+- Valuation multiples compressed: **11.5x** (down from 20.9x in 2024)
+- BUT: seed/Series A robust для компаний с:
+  - High NRR (>106%)
+  - Clear path to profitability
+  - Measurable learning outcomes (Efficacy Reckoning)
 
-## Customer Acquisition Cost (CAC)
+**Retention Strategy Implications:**
+- EdTech churn 9.6% означает средний customer lifetime ≈10 months (если linear)
+- Для LTV:CAC 3:1 при CAC $1,143 → нужен LTV ≥$3,429
+- При ARPU $100/мес → нужно удержать клиента минимум 34 месяца (≈3 года)
+- **IWE sticky factors:**
+  - Community (peer pressure, accountability)
+  - Digital twin (накопленные данные, персональный контекст)
+  - Персональные руководства (customization investment)
+  - Pack-знания (source-of-truth, увеличивающийся со временем)
 
-**Average B2B SaaS:** $536 per customer  
-**EdTech segment (education-specific):** $42 CAC (best-in-class)  
-**EdTech general:** $1,143 CAC (when targeting institutions/enterprises)
-
-**CAC Payback Period:**
-- **Education segment:** 3.8 months (fastest profitability path)
-- **B2B SaaS median:** 6.8 months
-- **Healthy benchmark:** <12 months
-
-## Expansion Revenue & NRR
-
-**Expansion revenue:** 40% of new ARR (existing customers upsell/cross-sell)  
-**Net Revenue Retention (NRR):** >106% → 2.5x faster growth
-
-**Rule of thumb:**
-- NRR >100% = expansion offsets churn
-- NRR >106% = significant growth multiplier
-
-## LTV:CAC Ratio
-
-**Healthy benchmark:** >3:1  
-**Interpretation:** Lifetime value должна быть минимум 3x от acquisition cost.
-
-## Annual Churn Targets
-
-**For established B2B SaaS:** <5% annual churn is vital for strong unit economics.
-
-**EdTech challenge:** 9.6% monthly = ~100%+ annual (если не предотвратить) → retention programs обязательны.
-
-## Net Retention
-
-**B2B SaaS average:** 100% net retention (ideal benchmark).
-
-**Components:**
-- Gross retention (existing customers stay)
-- Expansion revenue (existing customers grow)
-
-## Conversion Rates
-
-**Visitor-to-Trial:**
-- **EdTech:** 10.3%
-- **CRM software:** 9.7%
-- **Cybersecurity:** 7.4%
-
-**MQL-to-SQL (B2B SaaS):**
-- **Average:** 40% (far exceeds overall B2B average of 13%)
-
-## Market Funding Reality (2026)
-
-**EdTech funding decline:**
-- **2024:** $270M across 48 rounds
-- **2025 (until Dec):** $35.8M across 21 rounds
-- **Drop:** 86.75%
-
-**Interpretation:** Investors focus on proven traction, not hype. Metrics = ammunition.
-
-## Связь с WP-145 (Fundraising Deck)
-
-**Используемые метрики в deck v0.3:**
-- Churn: 9.6% (challenge acknowledged)
-- CAC: $1,143 benchmark (IWE currently $0 — highlight efficiency)
-- NRR: >106% target (expansion strategy in roadmap)
-
-**Обогащение deck:**
-- Slide 10 (Unit Economics): добавить expansion revenue 40% benchmark + NRR >106% as growth multiplier
-- Narrative: "IWE designed for retention through personalization + community" (counteract EdTech high churn)
-
-## Источники
-
-1. WeAreFounders (2026): "SaaS Churn Rates and Customer Acquisition Costs by Industry: 2026 Benchmarks"  
-   URL: https://www.wearefounders.uk/saas-churn-rates-and-customer-acquisition-costs-by-industry-2025-data/
-
-2. Data-Mania (2026): "CAC Benchmarks for B2B Tech Startups 2026"  
-   URL: https://www.data-mania.com/blog/cac-benchmarks-for-b2b-tech-startups-2025/
-
-3. Proven SaaS (2026): "CAC Payback Benchmarks 2026"  
-   URL: https://proven-saas.com/benchmarks/cac-payback-benchmarks
-```
+**Источники:**
+- [We Are Founders: SaaS Churn & CAC 2026](https://www.wearefounders.uk/saas-churn-rates-and-customer-acquisition-costs-by-industry-2025-data/)
+- [Qubit Capital: EdTech Series A Funding](https://qubit.capital/blog/edtech-series-a-pitch)
+- [Tracxn: EdTech SaaS 2026 Market Trends](https://tracxn.com/d/sectors/edtech-saas/__SUiO1pLIK1e6SNm_-H12QoILRct8neyBcUR3nJfcXS0)
+- [Qubit Capital: EdTech Storytelling](https://qubit.capital/blog/how-to-build-investor-trust-edtech)
 
 ---
 
-## CANDIDATE #7: AgentDiet & TrajTune — Trajectory Optimization Methods (AS.M.008, AS.M.009)
+## Candidate #7: DP.SOTA.009 — MCP Enterprise Adoption 2026
 
-**Pack:** PACK-autonomous-agents  
-**Type:** Method (2 related methods)  
-**Priority:** НИЗКАЯ (дополняют AS.M.005 Agentic Plan Caching)
+**Pack:** PACK-digital-platform  
+**Тип:** SOTA (новый)  
+**Статус:** Ready for capture  
 
-### Предварительная формулировка
+#### DP.SOTA.009: MCP Enterprise Adoption 2026 — Industry Standard for AI-Data Integration
 
-```markdown
+**Статус:** Industry standard (де-факто)
+
+**Суть:**
+Model Context Protocol (MCP) завершил переход от experimentation к enterprise-wide production adoption в 2026. Major vendors (OpenAI, Anthropic, Hugging Face, LangChain) стандартизировались вокруг MCP как core integration interface для AI systems.
+
+**Market:**
+- Market size: **$1.8B in 2025** (рост в 2026)
+- Драйверы: highly regulated industries (healthcare, finance, manufacturing)
+- OpenAI adopted MCP **March 2025** (ChatGPT desktop app)
+
+**Architecture:**
+- MCP = JSON-RPC-style bridge между AI host и tool servers
+- НЕ замена для databases/scrapers — стандартизирует boundary где models meet APIs/files/automation
+- Separate server processes → modularity, security isolation
+
+**Integration Patterns:**
+
+1. **Code Execution Pattern (2026 trend):**
+   - Agents write code to discover/call tools on demand
+   - Вместо upfront loading всех tool definitions (экономия context tokens)
+   - Enables dynamic tool discovery
+
+2. **Phased Implementation:**
+   - Rollout gradually по stages
+   - Review performance after each stage
+   - Align stakeholders early (business teams)
+
+3. **Governance First:**
+   - Security/compliance/identity controls BEFORE rollout
+   - Environment-based secrets (never model-accessible credentials)
+   - Smallest tool surface principle
+
+4. **Focused Tool Design:**
+   - Small MCP servers → one thing well
+   - Avoid monolithic servers with hundreds of tools
+   - Easier testing, maintenance, security
+
+**Future (Roadmap):**
+- Long-running operations (survive disconnections/reconnections)
+- Critical for enterprise workflows
+- Enables time-consuming tasks without persistent connections
+
+**IWE Context:**
+- IWE MCP servers: Gmail, Calendar, DDT, Knowledge, Guides, Composer
+- Architectural alignment: IWE следует focused tool design (отдельный сервер на домен)
+- Knowledge Gateway (WP-187) должен следовать best practices:
+  - Phased implementation (MVP → expand)
+  - Security controls (env secrets, minimal tool surface)
+  - Long-running ops support (для batch indexing)
+
+**Различие от prompt engineering:**
+- Prompt engineering = craft input text
+- MCP = standardize integration boundary (tools, data sources, APIs)
+- Context engineering (DP.SOTA.006) > prompt engineering > MCP integration
+
+**Источники:**
+- [CData: 2026 Year for Enterprise MCP Adoption](https://www.cdata.com/blog/2026-year-enterprise-ready-mcp-adoption)
+- [Use Apify: MCP Standard & Ecosystem 2026](https://use-apify.com/blog/mcp-standard-ecosystem-2026)
+- [Pento: A Year of MCP 2025 Review](https://www.pento.ai/blog/a-year-of-mcp-2025-review)
+- [Wikipedia: Model Context Protocol](https://en.wikipedia.org/wiki/Model_Context_Protocol)
+
 ---
-id: AS.M.008
-type: method
-title: AgentDiet — Trajectory Reduction
-status: emerging
-source: arXiv 2509.23586
-date: 2025
----
 
-# AgentDiet — Trajectory Reduction
+## Candidate #8: ECO.D.003 — Training for Skills ≠ Training for Agility
 
-## Проблема
+**Pack:** PACK-ecosystem  
+**Тип:** Distinction (новый)  
+**Статус:** Ready for capture  
 
-Agent trajectories accumulate massive token usage:
-- **Average GitHub issue resolution:** 48.4K tokens trajectory (40 steps)
-- **Accumulated usage:** 1.0M tokens per issue
+#### ECO.D.003: Training for Skills ≠ Training for Agility
 
-**Cost inefficiency:** Много useless, redundant, expired information в trajectory.
+**Суть различения:**
+Традиционный corporate training фокусируется на конкретные навыки для текущей роли. Agility training фокусируется на transferable capabilities для адаптации к изменениям.
 
-## Решение
+**Сравнение:**
 
-**AgentDiet:** Reduce trajectory content in real-time.
+| Аспект | Training for Skills | Training for Agility |
+|--------|---------------------|----------------------|
+| **Фокус** | Конкретные навыки для current job | Transferable capabilities (systems thinking, learning how to learn) |
+| **Срок жизни** | Краткосрочный (skills obsolete в 2-5 лет) | Долгосрочный (capabilities relevant across changes) |
+| **ROI метрика** | Output improvement in specific role | Organizational agility (internal mobility, project speed, innovation) |
+| **Вопрос** | "Did this improve output in this job?" | "Did this make the organization more agile?" |
+| **Hiring стратегия** | "Hire for skills" (temporary fix) | "Train for agility" (permanent capability) |
+| **Измерение** | Completion rates, skill assessments | Internal mobility, retention, innovation contributions, adaptation speed |
+| **Риск** | Skills gap при изменении технологий/рынка | Capability gap при fundamental shifts |
+| **Примеры** | "Python for Data Science", "Excel Advanced" | Systems thinking, problem framing, adaptive expertise |
 
-**Mechanism:**
-1. Cost-efficient LLM (lightweight) reads trajectory
-2. Identifies and removes:
-   - Useless information (не влияет на решение)
-   - Redundant information (duplicates)
-   - Expired information (no longer relevant)
-3. Compresses trajectory → shorter, cheaper
+**Контекст 2026:**
+- Skills gap = не будущая угроза, а daily operational reality
+- Gig-Hybrid workforce + autonomous systems → agility критична
+- AI ROI depends on workforce capability: organizations с mature upskilling programs = **2x higher AI ROI**
 
-## Comparison with APC (AS.M.005)
+**IWE Positioning:**
+- Мы НЕ продаём courses (training for skills)
+- Мы строим organizational agility через systems thinking methodology
+- ROI measurement:
+  - Internal mobility (люди переходят на более сложные роли внутри организации)
+  - Innovation contributions (применяют системное мышление к новым проблемам)
+  - Retention (agile workforce = engaged workforce)
+  - AI ROI amplification (системное мышление усиливает AI capabilities)
 
-| Аспект | AgentDiet | Agentic Plan Caching |
-|--------|-----------|---------------------|
-| **Фокус** | Reduce content (compression) | Reuse plans (caching) |
-| **When** | During execution (real-time) | After execution (test-time) |
-| **Goal** | Lower cost per execution | Avoid re-planning |
+**Failure Mode:**
+- Продавать IWE как "курсы по системному мышлению" = позиционирование как skills training
+- Правильно: "инфраструктура для развития организационной гибкости"
 
-**Complementary:** Can combine (AgentDiet reduces trajectory size → APC caches reduced plans).
-
-## Источники
-
-1. arXiv:2509.23586: "Reducing Cost of LLM Agents with Trajectory Reduction"  
-   URL: https://arxiv.org/html/2509.23586v2
-```
-
-```markdown
----
-id: AS.M.009
-type: method
-title: TrajTune — Trajectory-Based Prompt Optimization
-status: emerging
-source: OpenReview (ACL 2024), arXiv ETO
-date: 2025
----
-
-# TrajTune — Trajectory-Based Prompt Optimization
-
-## Проблема
-
-Agents hallucinate, fail tools, make mistakes → prompts need optimization.
-
-**Traditional approach:** Manual prompt tuning (slow, не масштабируется).
-
-## Решение
-
-**TrajTune:** Trajectory-aware prompt optimization framework.
-
-**Mechanism:**
-1. Capture structured execution traces (trajectories)
-2. Compute fine-grained error metrics (где именно ошибка)
-3. Compare против adaptive thresholds
-4. If issue detected → multi-LLM feedback loop iteratively refines prompts
-
-## Performance (Benchmarks)
-
-- **Hallucination rates:** -40%
-- **Tool success rates:** +30%
-- **Software engineering task accuracy:** +25%
-- **IT-ops success rates:** +20%
-
-## Comparison with APC (AS.M.005)
-
-| Аспект | TrajTune | Agentic Plan Caching |
-|--------|----------|---------------------|
-| **Фокус** | Optimize prompts (offline) | Reuse plans (online) |
-| **When** | Offline (training phase) | Online (execution time) |
-| **Goal** | Better prompts → fewer errors | Faster execution → lower latency |
-
-**Complementary:** TrajTune optimizes prompts → APC caches plans based on those optimized prompts.
-
-## Источники
-
-1. OpenReview (ACL 2024): "Trial and Error: Exploration-Based Trajectory Optimization of LLM Agents"  
-   URL: https://openreview.net/forum?id=jyG14i5vQ5
-
-2. OpenReview: "TrajTune: Trajectory-Based Prompt Optimization for LLM Agents"  
-   URL: https://openreview.net/forum?id=vXrOyzt0Ea
-```
+**Источники:**
+- [DataCamp: AI ROI 2026](https://www.datacamp.com/blog/ai-roi-in-2026-why-workforce-capability-determines-the-return-on-ai)
+- [EducationNest: ROI of Reskilling 2026](https://educationnest.com/the-roi-of-reskilling-navigating-the-2026-corporate-learning-revolution/)
+- [Silicon UK: Skills That Matter 2026](https://www.silicon.co.uk/e-management/skills/the-skills-that-matter-in-2026-head-to-head-628346)
+- [Myngle: New ROI of Employee Development 2026](https://blog.myngle.com/training-roi-2026-business-impact)
 

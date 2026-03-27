@@ -10,18 +10,18 @@
 
 ## Принцип
 
-Автор-агент → этот репозиторий. Автор-человек → DS-my-strategy.
+Автор-агент → этот репозиторий. Автор-человек → governance-хаб (например DS-my-strategy).
 Черновик агента ≠ дубль утверждённого документа. Это разные артефакты: raw vs approved.
 
 ## Upstream dependencies
 
-- [TserenTserenov/DS-autonomous-agents](https://github.com/TserenTserenov/DS-autonomous-agents) — код агентов (instrument)
-- [TserenTserenov/PACK-autonomous-agents](https://github.com/TserenTserenov/PACK-autonomous-agents) — source-of-truth проектирования агентов
+- DS-autonomous-agents (приватный) — код агентов (instrument)
+- PACK-autonomous-agents (приватный) — source-of-truth проектирования агентов
 - [TserenTserenov/PACK-digital-platform](https://github.com/TserenTserenov/PACK-digital-platform) — source-of-truth архитектуры платформы
 
 ## Downstream outputs
 
-- DS-my-strategy — утверждённые документы (DayPlan, captures)
+- DS-my-strategy (приватный) — утверждённые документы (DayPlan, captures)
 - PACK-* — формализованные captures (через Экстрактора)
 
 ## Non-goals
