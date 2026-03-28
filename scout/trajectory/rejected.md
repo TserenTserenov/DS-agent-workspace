@@ -36,3 +36,24 @@
 **Источник:** Wikipedia, Anthropic, OneReach
 **Причина отклонения:** Не новая информация. MCP уже используется в IWE (Gmail, Calendar, DDT). Donation к AAIF = governance shift, не влияет на текущую архитектуру. Не actionable.
 
+---
+
+## 2026-03-27 #6: AS.M.007 — ACE: Agentic Context Engineering
+
+**Источник:** arxiv 2510.04618, SwirlAI Newsletter
+**Причина отклонения:** AS.M.007 запрещён правилом #15. ACE = обогащение существующих DP.SOTA.002 (Context Engineering) + DP.M.003 (CE Protocol). Метод generation→reflection→curation ценен, но не отдельная сущность — расширить SOTA.002/M.003.
+
+---
+
+## 2026-03-27 #7: ECO Positioning — Systems Thinking as Top Capability
+
+**Источник:** Upside Learning, UNIVAD, WEF
+**Причина отклонения:** Не Pack-знание. Нарративный/позиционный инсайт → WP-145 (investor deck) input. HD #29: реализационное решение, не доменная истина. Использован для черновика поста D-019.
+
+---
+
+## 2026-03-28 #8: DP.SC.019 enrichment — Multi-Day Orchestration Patterns
+
+**Источник:** Anthropic Science Blog
+**Причина отклонения:** Неправильная маршрутизация. DP.SC.019 = "Обновление экзокортекса" (use case). Multi-day orchestration patterns = другая тема. Паттерны (test oracles, persistent memory, orchestration) ценны, но адрес неверный.
+

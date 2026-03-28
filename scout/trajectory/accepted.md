@@ -144,3 +144,73 @@ JTBD для EdTech: 5 стейкхолдеров. Workforce upskilling 44.8% CAG
 ### Reasoning
 Правило #12: FM с конкретикой = высокая ценность. Все три с именами, сценариями, severity, mitigation, примерами. Прямая связь с scheduler.sh (WP-132) и Trust Stack (AS.M.001).
 
+---
+
+## 2026-03-27 #11: AS.FM.019 — Behavioral Drift in Multi-Agent Systems
+
+**Источник:** CIO, Machine Learning Mastery
+**Тип:** failure mode
+**Куда:** PACK-autonomous-agents → AS.FM.019
+
+### Суть
+Постепенная деградация поведения агентной системы в production (недели-месяцы). Причина: incremental changes (обновление модели, промпта, инструментов). Каждое изменение individually safe, но cumulatively = behavior shifts. Различение vs DP.FM.005: внутренний drift системы ≠ устаревание модели от внешних изменений.
+
+### Reasoning
+Новый класс FM. Не дубль существующих (012-018 = технические, FM.005 = external drift). Конкретные mitigation: behavioral snapshots, prompt versioning, staged rollouts, circuit breakers. Применимо к WP-132 (scheduler), WP-179 (GEPA → drift detection).
+
+---
+
+## 2026-03-27 #12: AS.FM.020 — Production Deployment Failure (Organizational)
+
+**Источник:** Digital Applied, HBR, Use Apify
+**Тип:** failure mode
+**Куда:** PACK-autonomous-agents → AS.FM.020
+
+### Суть
+88% агентных проектов не доходят до production. Причина не технические ошибки, а organizational readiness gap: нет governance, нет accountability framework, нет observability, legacy incompatibility. Gartner: 40% agentic AI projects отменены к 2027. Различение: Technical FM (012-018) ≠ Organizational FM (020).
+
+### Reasoning
+Дополняет технические FM организационным классом. Статистика сильная (HBR, Gartner). Mitigation: pre-deployment governance checklist, organizational readiness audit (отдельный gate после GEPA). Прямо применимо к WP-179 Phase 2.
+
+---
+
+## 2026-03-27 #13: ECO.SOTA.001 enrichment — Efficacy Reckoning Q1 2026
+
+**Источник:** OpenFieldX, Talks Android
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-ecosystem → ECO.SOTA.001 (новая секция)
+
+### Суть
+Фундаментальный сдвиг: инвесторы требуют Pedagogical Efficacy, не platform reach. Engagement → Outcomes, Reach → Impact, Content → Agentic Systems. Interoperability = buying requirement (не best practice). Workforce upskilling 44.8% CAGR.
+
+### Reasoning
+ECO.SOTA.001 существует, это обогащение (не новая сущность). Данные свежие (Q1 2026). Прямое влияние на WP-145 (investor deck narrative).
+
+---
+
+## 2026-03-28 #14: AS.SOTA.005 — Cognitive Runtime (ElephantBroker)
+
+**Источник:** arXiv:2603.25097, Lupascu & Lupascu, March 2026
+**Тип:** SOTA (архитектурный паттерн, не пошаговый метод)
+**Куда:** PACK-autonomous-agents → AS.SOTA.005
+
+### Суть
+ElephantBroker — cognitive runtime, объединяющий: 6-фазный когнитивный цикл (store→retrieve→score→compose→protect→learn), 4-state evidence verification model (Unverified→Self-Supported→Tool-Supported→Supervisor-Verified), 11-мерную систему скоринга контекста, 6-слойный guard pipeline с AI firewall и tool-call interception, 9-стадийную консолидацию памяти. Ключевое различение: runtime verification ≠ pre-deployment testing.
+
+### Reasoning
+Paper прочитан полностью. Это SOTA (архитектура), не метод (нет пошагового алгоритма для пользователя). Не дубль — ни один Pack-документ не покрывает runtime verification для агентов. Прямая связь с AS.M.001 (Trust Stack — missing runtime layer), WP-179 (GEPA = pre-deployment, ElephantBroker = runtime complement), AS.FM.019 (behavioral drift detection через consolidation engine).
+
+---
+
+## 2026-03-28 #15: AS.SOTA.001 enrichment — Enterprise Q1 2026 Metrics
+
+**Источник:** kore.ai, reinventing.ai, multimodal.dev
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-autonomous-agents → AS.SOTA.001 (новая секция)
+
+### Суть
+72% Global 2000 beyond pilots. ROI: 20% cost savings (industrial), 85% tier-1 support automation. 79% organizations report productivity gains. Gartner: 40% enterprise apps embed agents by 2026.
+
+### Reasoning
+AS.SOTA.001 существует, свежие метрики Q1 2026. Количественные данные для стратегических решений.
+
