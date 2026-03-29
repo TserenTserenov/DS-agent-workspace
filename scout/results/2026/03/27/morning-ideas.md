@@ -1,199 +1,289 @@
-# Scout Morning Report — 2026-03-27
+# Scout Report — 2026-03-27
 
-**Статус:** Headless-режим (launchd, автономный запуск)  
-**Исследовательские задания:** Нет pending scan-заданий (все done или moved_to_session)  
-**Источники:** 10 web-поисков (ArXiv, WEF, IEEE, Medium, industry blogs)  
-**Бюджет:** $1.27 из $10  
+## Session Metadata
+
+- **Date:** 2026-03-27
+- **Mode:** Headless (automated)
+- **Sources scanned:** 8 web searches (arxiv, WEF, industry reports)
+- **Findings:** 5 new, 3 enrichments, 1 dedup_skip
+- **Top priority:** Behavioral Drift (AS.FM.019), Production Failure 88% (AS.FM.020)
 
 ---
 
-## ТОП-5 находок (ранжированы по релевантности)
+## TOP-5 Findings (Ranked)
 
-### #1 [КРИТИЧЕСКАЯ] Multi-Layer Knowledge Graph Architecture for Digital Twins
+### #1: ACE Framework — Agentic Context Engineering [HIGH]
 
-**Источник:** [IEEE Xplore (26 Mar 2026)](https://www.mdpi.com/2504-2289/10/4/103), [Nature Scientific Reports (Jan 2025)](https://www.nature.com/articles/s41598-024-85053-0)  
-**Релевантность:** КРИТИЧЕСКАЯ  
-**Связь:** WP-187 (Knowledge Gateway MVP), PACK-digital-platform (DP.SOTA)
+**Источник:** [Agentic Context Engineering (arxiv 2510.04618)](https://arxiv.org/abs/2510.04618), [State of Context Engineering 2026](https://www.newsletter.swirlai.com/p/state-of-context-engineering-in-2026)
+**Дата:** January 2026
+**Релевантность:** HIGH
+**Связь:** WP-179 (test framework), DP.M.003 (Context Engineering Protocol), DP.SOTA.002
 
 #### Суть
-Опубликована **вчера** (26 марта 2026) архитектура Digital Twin с трёхслойным Knowledge Graph: (1) **Concept layer** — структура ключевых сущностей, (2) **Model layer** — связь цифровых и физических параметров, (3) **Decision layer** — использование модели + real-time data для принятия решений. Применяется в smart manufacturing, construction, networking. Микросервисная архитектура вокруг graph DB обеспечивает модульность, гибкость, interoperability.
+
+ACE (Agentic Context Engineering) — новый фреймворк из arxiv (Jan 2026), который трактует контексты как **эволюционирующие playbooks**: агенты накапливают, рефлексируют и курируют стратегии через модульный процесс generation → reflection → curation. Отличие от статичного prompt engineering: контекст оптимизируется **offline (system prompts) и online (agent memory)** одновременно.
+
+**Результаты:** +10.6% на агентных задачах, +8.6% на финансовых данных (vs strong baselines).
+
+**Ключевой инсайт 2026:** Context engineering становится first-class discipline. Bottleneck современных LLM систем — не модель, а **информационная дисциплина** (filtering, ranking, pruning, summarizing, isolating). RAG эволюционирует в "Context Engines" с intelligent retrieval как ядром.
 
 #### Reasoning
-**Правило #6 (Связь с РП):** Прямое попадание в WP-187 (Knowledge Gateway). Мы проектируем архитектуру ЦД v3.0 с вычисляемыми характеристиками (WP-171 контекст+архитектура done) — эта публикация даёт **production-tested** паттерн трёхслойной структуры KG для Digital Twin. 
 
-**Почему критично:**
-- Публикация свежая (26 марта) → актуальный SOTA
-- Описывает именно то, что нужно WP-187: graph DB как core, микросервисы вокруг, decision layer поверх
-- Есть real-world применения (manufacturing, infrastructure) → не теория, а production patterns
-- Semantic expressiveness + adaptability KG решают проблему гетерогенных данных ЦД
+Попадание в текущий РП: WP-179 (GEPA test framework) требует контекстной инженерии для валидации агентов. DP.M.003 (Context Engineering Protocol) существует, но ACE = конкретный метод **с измеримыми результатами** (+10.6%). Pack Index: DP.SOTA.002 (Context Engineering) покрывает общий тренд, но ACE = специфичная техника для **модульной эволюции контекстов**.
+
+Критерий: **новый метод** + **обновление SOTA** + **связь с активным РП**.
 
 #### Предложение
-- **Тип:** SOTA-обновление
-- **Куда:** PACK-digital-platform → 06-sota/DP.SOTA.NNN (найти свободный номер после DP.SOTA.008)
-- **Действие:** Capture: "Multi-Layer Knowledge Graph Architecture for Digital Twins" → DP.SOTA.NNN
+
+- **Тип:** метод + SOTA-обновление
+- **Куда:** 
+  - Новый метод: **AS.M.007** (если для агентов) или **DP.M.010** (если платформенный паттерн)
+  - Обогащение: DP.SOTA.002 (Context Engineering) — добавить ACE как конкретную технику
+- **Действие:** 
+  1. Capture метода ACE → AS.M.007 или DP.M.010
+  2. Enrich DP.SOTA.002 новыми данными (Context Engines, memory architectures 2026)
+  3. Связать с WP-179: использовать ACE для GEPA context optimization
 
 ---
 
-### #2 [ВЫСОКАЯ] Loop of Death + Cost Circuit Breakers в Production Agents
+### #2: Behavioral Drift in Agentic Systems [КРИТИЧЕСКИЙ]
 
-**Источник:** [Medium (Jan 2026)](https://medium.com/@sattyamjain96/the-loop-of-death-why-90-of-autonomous-agents-fail-in-production-and-how-we-solved-it-at-e98451becf5f), [Galileo AI Guide](https://galileo.ai/blog/agent-failure-modes-guide), [RocketEdge (Mar 2026)](https://rocketedge.com/2026/03/15/your-ai-agent-bill-is-30x-higher-than-it-needs-to-be-the-6-tier-fix/)  
-**Релевантность:** ВЫСОКАЯ  
-**Связь:** WP-132 (scheduler.sh ночные агенты), WP-171 (архитектура Phase 2), PACK-autonomous-agents (AS.FM + AS.M)
+**Источник:** [Agentic AI Systems Don't Fail Suddenly — They Drift Over Time (CIO)](https://www.cio.com/article/4134051/agentic-ai-systems-dont-fail-suddenly-they-drift-over-time.html), [5 Production Scaling Challenges](https://machinelearningmastery.com/5-production-scaling-challenges-for-agentic-ai-in-2026/)
+**Дата:** March 2026
+**Релевантность:** КРИТИЧЕСКАЯ
+**Связь:** WP-179 (test framework), WP-132 (scheduler.sh), AS.FM.*, DP.FM.005
 
 #### Суть
-**Loop of Death = #1 killer of production agents** (90% failures). Агент в retry loop с ошибкой сжигает бюджет за минуты. Real case: стартап сжёг месячный бюджет за выходные на парсинге одного CSV. Infinite loop → $40 за минуты. 
 
-**Cost Circuit Breakers** — 4 non-negotiables (из Cox Automotive + индустрия):
-1. Hard budget ceiling per run/day/agent с автостопом
-2. Rate limiter + exponential backoff на API calls
-3. Loop detector через embedding similarity последних N сообщений
-4. Named human pейджится в 3am при breach
+**Behavioral Drift** — failure mode, при котором агентные системы деградируют **постепенно (месяцы)**, а не внезапно. Причины: обновления моделей, изменения промптов, добавление инструментов, изменение зависимостей. Cloud Security Alliance (CSA) называет это **cognitive degradation** — системный риск, который возникает градуально.
 
-**Real metrics:** Cox Automotive — автостоп на P95 cost или 20 turns. GetOnStack — $127/неделя → $47K за 4 недели (11 дней незамеченный loop).
+**Отличие от DP.FM.005 (Model-Reality Drift):** DP.FM.005 про статичную модель, которая отстаёт от реальности. Behavioral Drift — про **динамичную систему агентов**, где behaviour changes **внутри системы** из-за incremental updates.
+
+**Последствия:** Non-deterministic execution paths, agents waiting on agents, race conditions, cascading failures **impossible to reproduce in staging**.
+
+**Mitigation (по источникам):** Deep observability (tracing), version control for prompts/tools, regression testing for agent behavior, staged rollouts with canary deployments.
 
 #### Reasoning
-**Правило #12 (FM с конкретикой = высокая ценность):** Три failure mode с именами, сценариями, severity, mitigation, примерами:
-- **Loop of Death** (критический) → AS.FM.009 или обогащение существующего
-- **Cost Circuit Breaker** (метод защиты) → AS.M.NNN (новый метод) или обогащение AS.M.001 (Trust Stack)
 
-**Связь с РП:** WP-132 (scheduler.sh) запускает ночных агентов → без circuit breaker они могут сжечь бюджет. WP-171 (архитектура Phase 2) — governance layer должен включать cost control.
+**Критический приоритет:** Блокер для WP-179 (test framework) и WP-132 (ночной scheduler). Если агенты дрифтуют, то:
+1. GEPA тесты валидны сегодня, но **не гарантируют стабильность через месяц**
+2. Ночной scheduler.sh может начать фейлить без явной причины
+3. Нет инструментов для **детекции дрифта** в текущей IWE архитектуре
 
-**Actionable:** Конкретные цифры (max_retries=3-5, P95 cost threshold, 20 turns limit) + готовые инструменты (AgentBudget.dev, Aden).
+Pack Index: DP.FM.005 существует, но это другая тема. Behavioral Drift = новый failure mode для AS.FM.*.
+
+Критерий: **failure mode, от которого мы не защищены** + **связь с активным РП** + **критичность для production**.
 
 #### Предложение
-- **Тип:** Failure mode + метод (защита)
-- **Куда:** PACK-autonomous-agents → AS.FM.009 (Loop of Death), AS.M.NNN (Cost Circuit Breaker Design)
-- **Действие:** Capture двух сущностей: FM и защитный метод
+
+- **Тип:** failure mode (critical severity)
+- **Куда:** **AS.FM.019** (Behavioral Drift in Multi-Agent Systems)
+- **Действие:**
+  1. Capture → AS.FM.019 с:
+     - Название, сценарий, severity (critical)
+     - Mitigation: observability stack, prompt versioning, behavioral regression tests, canary deployments
+     - Связь с DP.FM.005 (различение: static model vs dynamic system)
+  2. Применить к WP-179: добавить в test framework **drift detection** (baseline behavior snapshot + periodic validation)
+  3. Связать с WP-132: scheduler.sh → health checks должны включать behavior consistency (не только error rate)
 
 ---
 
-### #3 [ВЫСОКАЯ] NIST AI Agent Standards Initiative (Feb 2026)
+### #3: Systems Thinking as Top Workforce Capability 2026 [HIGH]
 
-**Источник:** [SiliconANGLE (19 Feb 2026)](https://siliconangle.com/2026/02/19/nist-launches-ai-agent-standards-initiative-autonomous-ai-moves-production/), [WEF (Feb/Mar 2026)](https://www.weforum.org/stories/2026/03/ai-agent-autonomy-governance/)  
-**Релевантность:** ВЫСОКАЯ  
-**Связь:** Стратегия (S2 Международный выход), WP-183 (CRM как система), PACK-autonomous-agents (AS.SOTA governance)
+**Источник:** [Upskilling for 2026 (Upside Learning)](https://blog.upsidelearning.com/2025/12/22/upskilling-vs-reskilling-what-your-learning-strategy-should-focus-on-in-2026/), [Six Shifts in Professional Upskilling 2026](https://www.univad.org/post/the-six-biggest-shifts-in-professional-upskilling-in-2026), [WEF Work Transformation](https://www.weforum.org/stories/2025/12/work-transformation-skills-agility-growth/)
+**Дата:** Q4 2025 — Q1 2026
+**Релевантность:** HIGH
+**Связь:** Dissatisfactions.md (S1 Масштабирование), ECO.M.004 (GTM), WP-145 (investor deck), WP-175 (программа развития)
 
 #### Суть
-U.S. NIST запустил **AI Agent Standards Initiative** (февраль 2026) — программа разработки technical standards и guidance для autonomous AI agents. Цель: стандартизация governance, безопасности, accountability для production agents.
 
-WEF (март 2026): **Bounded autonomy** + **Trust Stack** как core принципы governance. Progressive governance models: autonomy как adjustable design parameter, safeguards масштабируются вместе с operational scope. **Governance = competitive advantage**, не compliance overhead.
+**Systems thinking** признана **одной из самых ценных долгосрочных компетенций 2026** (по данным workforce upskilling исследований). Причина: **transfers across roles/industries, stretches into new situations, amplifies other skills**.
 
-**Agentic Trust Framework (ATF)** от Cloud Security Alliance: Zero Trust для агентов, 4 maturity levels (L1-L4) с прогрессивной автономией.
+**Ключевые данные:**
+- Роли требуют **50-50 split: tech + human capabilities** (AI/data/cloud + leadership/EQ/adaptability/judgment)
+- Навыки имеют **compressed shelf life** → upskilling теперь **continuous, strategic part of professional life** (не side activity)
+- Государства (США) создают **coordinated skills ecosystems** (education + employers + workforce support) с **real-time labor market insights**
+
+**Тренд:** Skills-first procurement and policy (K-12, post-secondary, workforce education). AI literacy + problem-solving + creative thinking — **embedded** в каждую программу.
 
 #### Reasoning
-**Правило #2 (SOTA с конкретикой):** Не просто «governance развивается», а конкретная инициатива NIST (февраль 2026) + WEF framework (март 2026) + ATF с 4 уровнями зрелости.
 
-**Связь со стратегией:** S2 (Международный выход) — NIST standards = требование для US market. S6 (Fundraising) — инвесторы спрашивают про governance (compliance + safety). Governance как enabler, не overhead → competitive advantage.
+**Прямое попадание в стратегию:** Dissatisfactions.md S1 (Масштабирование) требует positioning IWE как **workforce upskilling platform**. ECO.D.003 (Education ≠ Intelligence Development) уже различает, но нет данных для **narrative**.
 
-**Связь с РП:** WP-183 (CRM как система) требует governance модель для хранения данных и автономии агентов. WP-171 (архитектура Phase 2) — governance layer.
+**Инсайт для WP-145 (investor deck):** Можем позиционировать IWE не как "EdTech", а как **workforce intelligence infrastructure**. Данные:
+- Corporate upskilling market 44.8% CAGR (из rt-003 done results)
+- Systems thinking = top capability 2026
+- IWE = единственная платформа, которая **teaches systems thinking as operational framework** (FPF), не как soft skill
+
+Pack Index: ECO.M.004 (GTM strategy) есть, но нет конкретного positioning insight для upskilling narrative.
+
+Критерий: **стратегический фит** + **связь с активным РП** + **позиционирование для fundraising**.
 
 #### Предложение
-- **Тип:** SOTA-обновление (governance)
-- **Куда:** PACK-autonomous-agents → обогащение AS.SOTA.003 (WEF/Singapore/ATF governance) новыми данными (NIST Initiative, Feb 2026 WEF update)
-- **Действие:** Enrichment AS.SOTA.003 с добавлением NIST + актуализацией WEF
+
+- **Тип:** positioning insight (не сущность Pack, а narrative input)
+- **Куда:** 
+  - Обогащение: ECO.M.004 (GTM strategy) — добавить upskilling positioning
+  - Входные данные для WP-145 (investor deck): slide на workforce upskilling market + systems thinking demand
+- **Действие:**
+  1. Добавить в ECO.M.004 секцию "Workforce Upskilling Positioning" с данными 2026
+  2. Использовать в WP-145: "IWE = systems thinking infrastructure for workforce intelligence development" (vs traditional EdTech = content delivery)
+  3. Связать с ECO.D.003 (Education ≠ Intelligence Development): intelligence development = то, что нужно workforce 2026
 
 ---
 
-### #4 [СРЕДНЯЯ] Trajectory Caching: 73%→93% Performance Lift в ALFWorld
+### #4: 88% AI Agents Never Reach Production — Organizational Failure Mode [КРИТИЧЕСКИЙ]
 
-**Источник:** [Medium (Self-Improving Agents)](https://medium.com/@vi.ha.engr/building-a-self-correcting-ai-a-deep-dive-into-the-reflexion-agent-with-langchain-and-langgraph-ae2b1ddb8c3b), [Yohei Nakajima Blog](https://yoheinakajima.com/better-ways-to-build-self-improving-ai-agents/)  
-**Релевантность:** СРЕДНЯЯ  
-**Связь:** PACK-autonomous-agents (AS.M self-improvement), WP-132 (scheduler ночные агенты)
+**Источник:** [Why 88% of AI Agents Fail Production (Digital Applied)](https://www.digitalapplied.com/blog/88-percent-ai-agents-never-reach-production-failure-framework), [Agentic AI in Production (Use Apify)](https://use-apify.com/blog/agentic-ai-enterprise-adoption-2026), [HBR: Why Agentic AI Projects Fail](https://hbr.org/2025/10/why-agentic-ai-projects-fail-and-how-to-set-yours-up-for-success)
+**Дата:** 2025 Q4 — 2026 Q1
+**Релевантность:** КРИТИЧЕСКАЯ
+**Связь:** AS.*, DP.FM.*, WP-179 (governance для test framework)
 
 #### Суть
-**Trajectory Caching** = когда агент успешно решает задачу, он сохраняет полную траекторию (последовательность действий). При новой похожей задаче — промпт с несколькими past successful trajectories as in-context examples.
 
-**Конкретные метрики:** ALFWorld (бенчмарк для embodied agents):
-- Baseline: 73%
-- С trajectory caching: 89% (+16 п.п.)
-- С оптимизацией (caching reflexion plans + frequently retrieved lessons): 93% (+20 п.п.)
+**88% AI agent projects никогда не достигают production.** Gartner: **40% agentic AI projects будут отменены к концу 2027**.
 
-**Механизм:** Episodic memory buffer хранит траектории. Caching strategies включают selective caching (только успешные), compression (summary вместо full trace), similarity-based retrieval (для common task signatures).
+**Ключевая причина (не technical):** Не слабые модели, а **inadequate infrastructure, governance, observability, organizational readiness**. Цитата: "These systems fail in unexpected and costly ways that don't follow traditional software bug patterns; they emerge from ambiguity, miscoordination, and unpredictable system dynamics."
+
+**Паттерн:** Многие agentic initiatives будут **quietly shut down** к концу 2026 не потому что модели плохие, а потому что **enterprises failed to govern execution**.
+
+**Legacy system incompatibility:** Gartner prediction — 40% проектов фейлятся из-за того, что **legacy systems can't support modern AI execution demands** (authentication, rate limiting, API versioning, async coordination).
 
 #### Reasoning
-**Правило #2 (SOTA с конкретикой):** Не абстрактное «agents improve», а конкретные цифры: +16 п.п. → +20 п.п. на production benchmark.
 
-**Связь с РП:** WP-132 (scheduler) — ночные агенты могут использовать trajectory caching для накопления опыта (каждая успешная сессия → episodic memory → future sessions быстрее и точнее).
+**Критический приоритет:** Это **organizational/governance failure mode**, не technical. Pack Index: AS.FM.* покрывают technical failures (loops, hallucination, tool misuse), но нет organizational failure mode.
 
-**Применимость:** IWE agents (Scout, Экстрактор, Стратег) могут кэшировать успешные траектории для повторяющихся задач (например, Scout: successful research sessions → caching query patterns).
+**Связь с IWE:**
+- WP-179 (test framework) — нужен не только GEPA для technical validation, но и **governance framework** для production readiness
+- AS.M.004 (Graduated Governance) существует, но 88% метрика показывает **gap between method and reality**
+
+**Отличие от AS.FM.*:** Существующие failure modes — про agent behavior (reasoning, memory, tools). Этот — про **organizational capacity to deploy agents** (governance, infrastructure, observability).
+
+Критерий: **failure mode** + **критичность** + **новый тип (organizational, не technical)**.
 
 #### Предложение
-- **Тип:** Метод (обогащение существующего)
-- **Куда:** PACK-autonomous-agents → обогащение существующего AS.M по self-improvement (если есть) или новый AS.M.NNN
-- **Действие:** Enrichment с добавлением конкретных метрик и стратегий кэширования
+
+- **Тип:** failure mode (organizational, severity: critical)
+- **Куда:** **AS.FM.020** (Production Deployment Failure — Organizational)
+- **Действие:**
+  1. Capture → AS.FM.020:
+     - Название: "Production Deployment Failure — Organizational Readiness Gap"
+     - Сценарий: Agent проходит все technical tests (GEPA), но не деплоится из-за governance/infra/observability gaps
+     - Severity: critical (88% failure rate)
+     - Mitigation: 
+       - Pre-deployment governance checklist (AS.M.004 Graduated Governance)
+       - Observability stack (tracing, behavior monitoring)
+       - Legacy system compatibility assessment
+       - Organizational readiness audit (roles, accountability, escalation paths)
+  2. Связать с WP-179: добавить в test framework **organizational readiness** как отдельный gate (после technical validation)
+  3. Связать с AS.M.004: добавить 88% метрику как motivation для Graduated Governance adoption
 
 ---
 
-### #5 [СРЕДНЯЯ] Agent Observability SOTA 2026: OpenTelemetry Convergence
+### #5: EdTech Efficacy Reckoning 2026 — Pedagogical Impact > Platform Reach [HIGH]
 
-**Источник:** [LangChain (2026)](https://www.langchain.com/articles/llm-observability-tools), [TrueFoundry (2026)](https://www.truefoundry.com/blog/best-ai-observability-platforms-for-llms-in-2026), [LangWatch (2026)](https://langwatch.ai/blog/4-best-tools-for-monitoring-llm-agentapplications-in-2026)  
-**Релевантность:** СРЕДНЯЯ  
-**Связь:** WP-132 (scheduler monitoring), PACK-digital-platform (DP.SOTA observability)
+**Источник:** [2026 EdTech Trends: Efficacy Reckoning (OpenFieldX)](https://openfieldx.com/edtech-trends-2026/), [EdTech Funding News 2026 (Talks Android)](https://talksandroid.com/edtech-funding-news-2026-trends/)
+**Дата:** Q4 2025 — Q1 2026
+**Релевантность:** HIGH
+**Связь:** ECO.SOTA.001, ECO.D.007 (PMF-edu), WP-145 (investor deck)
 
 #### Суть
-В 2026 индустрия converges на **OpenTelemetry (OTEL)** как стандарт для agent telemetry. Shift от reactive log-based monitoring → proactive structured tracing с typed observation data (tool calls, retriever steps, guardrail checks).
 
-**Leading platforms 2026:** LangSmith (framework-agnostic), Langfuse (open-source, 21K+ GitHub stars), Arize AI ($70M Series C, Uber/PepsiCo/Tripadvisor клиенты), TrueFoundry, Helicone.
+**"The Efficacy Reckoning"** — доминирующий тренд EdTech 2026. Инвесторы и buyers теперь требуют **Pedagogical Efficacy и Verifiable Skill Acquisition** вместо platform reach или engagement metrics.
 
-**Критические capabilities:**
-- Real-time cost tracking + per-trace cost attribution (для agents с multi-step LLM chains)
-- Full trace capture across multi-step workflows (inputs/outputs/metadata/tokens/costs)
-- Automatic logging of agent workflows (не требует инструментирования кода)
+**Shift:** От passive content delivery → **autonomous "Agentic" systems** that manage student feedback, personalization, workflows, and admin tasks.
 
-**Консенсус:** Agent observability = essential production infrastructure (не nice-to-have).
+**Investor criteria (2026):**
+- Measurable learning outcomes (не просто completion rates)
+- Proof of skill acquisition (assessments, certifications, job placement)
+- Capital efficiency: clear path to profitability
+- Interoperability: **shifting from best practice → buying requirement** (2026)
+
+**Workforce upskilling focus:** Employers приоритизируют **micro-credentials и simulation-based training** над traditional degrees.
 
 #### Reasoning
-**Правило #4 (Маршрутизация: домен → Pack):** Observability = платформенная функция → DP.SOTA (не AS, т.к. применимо ко всем агентам, не специфика роли).
 
-**Связь с РП:** WP-132 (scheduler) — мониторинг ночных агентов требует observability. WP-171 (архитектура Phase 2) — observability layer как часть governance.
+**Прямое попадание в fundraising narrative (WP-145):** IWE может позиционироваться как **anti-efficacy-theater platform**:
+- FPF = не контент, а **framework корректности** → verifiable skill acquisition
+- ЦД = measurable learning outcomes через вычисляемые характеристики деятеля
+- Agentic AI = персонализация на основе состояния, не пассивный контент
 
-**Actionable:** Конкретные инструменты (Langfuse open-source, LangSmith для framework-agnostic). OpenTelemetry как стандарт → можем выбрать любую OTEL-compatible платформу.
+Pack Index: ECO.SOTA.001 (EdTech Seed Funding 2024-2026) существует, но "Efficacy Reckoning" = новый тренд Q4 2025 — Q1 2026. ECO.D.007 (PMF-edu ≠ PMF) близко, но это различение, не SOTA.
+
+Критерий: **SOTA-обновление** + **связь с fundraising (WP-145)** + **усиление существующего различения (ECO.D.007)**.
 
 #### Предложение
-- **Тип:** SOTA-обновление (observability)
-- **Куда:** PACK-digital-platform → DP.SOTA.NNN (observability для production agents)
-- **Действие:** Capture: "Agent Observability SOTA 2026: OpenTelemetry Convergence" → DP.SOTA.NNN
+
+- **Тип:** SOTA-обновление + positioning insight
+- **Куда:** 
+  - Обогащение: ECO.SOTA.001 (EdTech Seed Funding) — добавить "Efficacy Reckoning" как dominant trend 2026
+  - Усиление: ECO.D.007 (PMF-edu ≠ PMF) — связать с новыми investor criteria
+- **Действие:**
+  1. Enrich ECO.SOTA.001: добавить секцию "The Efficacy Reckoning (2026)" с investor criteria и примерами (interoperability as buying requirement, micro-credentials, verifiable outcomes)
+  2. Использовать в WP-145 (investor deck):
+     - Slide: "The Efficacy Problem" → почему engagement metrics не работают
+     - Positioning: IWE = единственная платформа с **measurable intelligence development** (ЦД), не engagement theater
+  3. Связать с ECO.D.007: PMF-edu требует pedagogical efficacy, IWE = built for efficacy (FPF framework + ЦД metrics)
 
 ---
 
-## Обогащения accepted.md (не новые находки)
+## Enrichments (не TOP findings)
 
-### Enrichment #1: Context Engineering / WISC Framework (accepted #2)
+### E1: MCP Adoption Data (March 2026)
 
-**Источник:** [Swirl AI Newsletter (2026)](https://www.newsletter.swirlai.com/p/state-of-context-engineering-in-2026)  
+**Куда:** DP.SOTA.014 (MCP как де-факто стандарт 2026)
 
-**Delta (что нового):**  
-Anthropic guide (сентябрь 2025) — 8 месяцев назад. С тех пор паттерны matured и adopted across platforms. Context engineering = core discipline AI engineering (был niche concern в 2024). WISC ordering intentional: Write/Isolate (most impact), Select (force multiplier), Compress (safety net).
+**Новые данные:**
+- OpenAI officially adopted MCP (March 2025)
+- Anthropic donated to AAIF (Linux Foundation), co-founders: Anthropic, Block, OpenAI; supporters: Google, Microsoft, AWS, Cloudflare, Bloomberg
+- **Rejection signal:** Perplexity CTO (Denis Yarats) announced moving away from MCP (March 2026) → reasons: high context window consumption, clunky auth flows
+- Adopted by: ChatGPT, Cursor, Gemini, Microsoft Copilot, VS Code
 
-**Действие:** Обогатить existing accepted #2 (Context Engineering) актуализацией: "8 месяцев после Anthropic guide → production adoption, WISC framework ordering validated".
-
----
-
-### Enrichment #2: Bounded Autonomy / Trust Stack (accepted AS.SOTA.003)
-
-**Источник:** [WEF (Feb 2026)](https://www.weforum.org/stories/2026/02/how-to-design-for-trust-in-the-age-of-ai-agents/), [CSA ATF (Feb 2026)](https://cloudsecurityalliance.org/blog/2026/02/02/the-agentic-trust-framework-zero-trust-governance-for-ai-agents)
-
-**Delta:**  
-WEF февраль 2026 + CSA ATF: 4 maturity levels (L1-L4) с earned autonomy. Governance = competitive advantage, не compliance overhead (2026 shift).
-
-**Действие:** Обогатить AS.SOTA.003 новыми данными (WEF Feb + CSA ATF 4-level model).
+**Reasoning:** Обогащает DP.SOTA.014, но не top finding (нет нового архитектурного insight). Важно: Perplexity rejection = **first major signal of MCP limitations** (context cost, auth UX).
 
 ---
 
-## Метрики
+### E2: 72% Global 2000 Beyond Pilots (2026)
 
-- **Источники просканировано:** 10 web-searches (ArXiv, WEF, IEEE, Medium, industry blogs)
-- **Потенциальные находки:** 10
-- **Отобрано в ТОП-5:** 5
-- **Обогащений accepted:** 2
-- **Отклонено (шум/дубли):** 3 (MCP adoption — уже используем, EdTech fundraising — не actionable, Reflexion — дубль trajectory caching)
-- **Конверсия:** 5/10 = 50% (качество > количество, правило #10)
+**Куда:** AS.SOTA.001 (Agentic AI Production Deployment 2026)
+
+**Новые данные:**
+- 72% Global 2000 beyond experimental testing → scaled production
+- 79% organizations adopted AI agents (PwC)
+- Market: $9.14B (2026) → $139B (2034), CAGR 40.5%
+- ROI: 88% planning budget increases, 66% measurable productivity improvements, 62% expecting ROI >100%
+- Production use cases: industrial maintenance (20% cost savings, 15% uptime), customer support (85% tier-1 automation), pharma (20-30% cost savings, 2 months → 1 day localization)
+
+**Reasoning:** Обогащает AS.SOTA.001, но данные уже в духе существующего SOTA (adoption metrics, ROI). Не новый insight.
 
 ---
 
-## Следующие шаги (для пользователя)
+### E3: Knowledge Graph Multi-Layer Architecture for Digital Twins
 
-1. **Приоритет:** Проверить #1 (Multi-Layer KG for Digital Twin) → если релевантно для WP-187, запустить Экстрактора (R2) для Capture → DP.SOTA.NNN
-2. **Средний:** #2 (Loop of Death + Circuit Breakers) → проверить scheduler.sh на наличие cost control → если нет, добавить в WP-132
-3. **Низкий:** #3-5 → в backlog для будущих сессий с Экстрактором
+**Куда:** DP.SOTA.009 (Knowledge-Based Digital Twins) — **SKIP** (не применимо к IWE ЦД без дополнительной работы)
+
+**Данные:** 3-layer (concept/model/decision), 4-layer, microservice-based KG architectures для DT.
+
+**Reasoning:** Интересно, но **too generic** для IWE. ЦД v3.0 (WP-171) использует другую архитектуру (declarative/measured/computed). Нужна отдельная сессия для mapping KG patterns → IWE ЦД. Не top finding.
+
+---
+
+## Dedup Skip
+
+**DEDUP_SKIP: Singapore/WEF Graduated Governance — совпадение с AS.SOTA.003**
+
+Источники: [Singapore Model AI Governance Framework](https://www.imda.gov.sg/resources/press-releases-factsheets-and-speeches/press-releases/2026/new-model-ai-governance-framework-for-agentic-ai), [WEF AI Agents in Action](https://www.weforum.org/publications/ai-agents-in-action-foundations-for-evaluation-and-governance/)
+
+**Reasoning:** AS.SOTA.003 (Global Agentic AI Governance WEF/Singapore 2026) уже покрывает эту тему. Новые данные (Singapore launched Jan 22 2026, WEF Nov 2025) не добавляют **нового insight** — frameworks align, оба рекомендуют pre-deployment testing + oversight + accountability.
+
+---
+
+## Session Statistics
+
+- **Sources queried:** 8 web searches
+- **Raw candidates evaluated:** 10
+- **Accepted (new):** 5
+- **Enrichments:** 3
+- **Dedup_skip:** 1
+- **Priority distribution:** 2 critical, 3 high, 3 medium
 
