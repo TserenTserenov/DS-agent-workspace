@@ -214,3 +214,129 @@ Paper прочитан полностью. Это SOTA (архитектура),
 ### Reasoning
 AS.SOTA.001 существует, свежие метрики Q1 2026. Количественные данные для стратегических решений.
 
+---
+
+## 2026-03-29 #16: AS.SOTA.006 — Agentic Reasoning Three-Layer Framework
+
+**Источник:** arxiv:2601.12538 (Jan 2026)
+**Тип:** SOTA (новая сущность)
+**Куда:** PACK-autonomous-agents → AS.SOTA.006
+
+### Суть
+Архитектурный паттерн: три слоя способностей агента. Layer 1 (Foundational): planning, tool use, reasoning, memory. Layer 2 (Self-Evolving): improvement loop, reflexion, trajectory caching. Layer 3 (Collective): coordination, distributed problem-solving, emergent capabilities. Agent = actor in environment, не text predictor.
+
+### Reasoning
+Не покрыт существующими AS.SOTA.001-005. Формализует то, что уже неявно используется (AS.D.006 = Layer 2, AS.M.005 = Layer 2 mechanism). Чёткое различение от DP.SOTA.006 (development tools). Применимо к WP-179 (GEPA design), WP-171 (Hub architecture), WP-132 (scheduler = L1+L2).
+
+---
+
+## 2026-03-29 #17: AS.FM.019 enrichment — Agent Drift Taxonomy (3 типа + PBSS)
+
+**Источник:** arxiv:2601.04170, arxiv:2506.10095, Maxim AI Guide
+**Тип:** failure mode (обогащение)
+**Куда:** PACK-autonomous-agents → AS.FM.019 (существующий)
+
+### Суть
+Три типа дрейфа: semantic (отклонение от intent), coordination (разрушение consensus), behavioral (непредусмотренные стратегии). PBSS Framework: дрейф БЕЗ изменений промпта из-за tokenization/decoding artifacts. Два механизма: config-driven (уже в FM.019) + spontaneous (PBSS, новое).
+
+### Reasoning
+FM.019 уже существует (28 мар). Обогащение таксономией лучше, чем новый FM.021 — избегаем дублирования. PBSS = новый механизм дрейфа (без триггера), дополняет config-driven drift.
+
+---
+
+## 2026-03-29 #18: ECO.SOTA.001 enrichment — Logic Models + 10% Threshold
+
+**Источник:** OpenFieldX, Talks Android
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-ecosystem → ECO.SOTA.001
+
+### Суть
+Logic Models requirement: founders обязаны предоставить third-party research с доказательством улучшения ≥10%. Skills transparency = buying requirement. Capital efficiency > growth-at-all-costs.
+
+### Reasoning
+ECO.SOTA.001 уже содержит Efficacy Reckoning секцию. Добавлены конкретные thresholds (10%, Logic Models), которых ранее не было.
+
+---
+
+## 2026-03-29 #19: DP.SOTA.002 enrichment — CE Best Practices 2026
+
+**Источник:** SwirlAI Newsletter, LogRocket, Comet ML
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-digital-platform → DP.SOTA.002
+
+### Суть
+4 паттерна: sliding window + summarization, context routing, tool loadout optimization (>30 = confusion), RAG not obsolete (>100K degrades reasoning). Challenges: context rot, mode collapse.
+
+### Reasoning
+DP.SOTA.002 содержит WISC framework и Gartner data, но не конкретные 2026 patterns. Обогащение actionable.
+
+---
+
+## 2026-03-29 #20: DP.SOTA.014 enrichment — MCP 2026 Roadmap (4 приоритета)
+
+**Источник:** MCP Blog, The New Stack, Use Apify
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-digital-platform → DP.SOTA.014
+
+### Суть
+4 приоритета core maintainers: transport scalability, agent communication (multi-day), governance maturation (audit, SSO), enterprise readiness. Market $1.8B. NOT ISO standard — open specification.
+
+### Reasoning
+DP.SOTA.014 содержал только текущий статус. Roadmap = forward-looking, влияет на архитектурные решения (WP-187, WP-171).
+
+---
+
+## 2026-03-29 #21: AS.M.001 enrichment — WEF Trust Stack + CSA ATF
+
+**Источник:** WEF Trust Stack (2026), CSA ATF
+**Тип:** метод (обогащение)
+**Куда:** PACK-autonomous-agents → AS.M.001
+
+### Суть
+WEF: 3 компонента trust stack (legible reasoning, bounded agency, transparent decision records). CSA ATF: 4-layer defense-in-depth. Industry maturity 2.3/5. Nvidia GTC: нет решений для agent-to-agent trust, memory poisoning, cryptographic binding.
+
+### Reasoning
+AS.M.001 уже содержит Trust Stack Design. Обогащение: конкретные CSA layers, maturity data, открытые проблемы.
+
+---
+
+## 2026-03-29 #22: AS.SOTA.002 enrichment — Framework Status Q1 2026
+
+**Источник:** o-mega.ai, DataCamp
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-autonomous-agents → AS.SOTA.002
+
+### Суть
+AutoGen → maintenance mode (Microsoft Agent Framework). CrewAI: 40% faster TTM. LangGraph: production leader. Обновлённая рекомендация по use cases.
+
+### Reasoning
+AS.SOTA.002 содержал LangGraph vs CrewAI. AutoGen status change = значительный shift. Добавлена 3-way comparison.
+
+---
+
+## 2026-03-29 #23: AS.SOTA.003 enrichment — CSA ATF Maturity + Nvidia GTC Gaps
+
+**Источник:** CSA ATF, Nvidia GTC 2026
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-autonomous-agents → AS.SOTA.003
+
+### Суть
+Maturity 2.3/5, только 1/3 ≥3. Nvidia GTC: нерешённые проблемы (agent-to-agent trust, memory poisoning, cryptographic binding). CSA ATF: 4-layer defense-in-depth.
+
+### Reasoning
+AS.SOTA.003 содержал WEF/Singapore framework. Добавлены quantitative maturity data и открытые проблемы.
+
+---
+
+## 2026-03-29 #24: DP.SOTA.013 enrichment — World Models Race Q1 2026
+
+**Источник:** Introl, Built In
+**Тип:** SOTA-обновление (обогащение)
+**Куда:** PACK-digital-platform → DP.SOTA.013
+
+### Суть
+AMI Labs (€500M, LeCun), Genie 3 (DeepMind, 24fps 3D), World Labs Marble (Fei-Fei Li). Consensus: no model-free shortcut. Связь с AS.SOTA.006 Layer 1.
+
+### Reasoning
+DP.SOTA.013 содержал теоретический фреймворк. Добавлены конкретные инвестиции и консенсус 2026.
+
